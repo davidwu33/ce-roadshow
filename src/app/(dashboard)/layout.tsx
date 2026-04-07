@@ -1,5 +1,4 @@
 import { Sidebar } from "@/components/shared/sidebar";
-import { Topbar } from "@/components/shared/topbar";
 import { CommandPalette } from "@/components/shared/command-palette";
 
 export default function DashboardLayout({
@@ -8,15 +7,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden md:block">
+    <div className="min-h-screen">
+      {/* Desktop sidebar — hidden on mobile */}
+      <div className="hidden lg:block">
         <Sidebar />
       </div>
-      <div className="flex-1 md:ml-[220px] flex flex-col">
-        <div className="hidden md:block">
-          <Topbar />
-        </div>
-        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
+      <div className="lg:ml-[220px]">
+        <main className="overflow-auto">{children}</main>
       </div>
       <CommandPalette />
     </div>

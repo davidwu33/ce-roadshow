@@ -1,12 +1,38 @@
 @import "tailwindcss";
 
-/* ─── Google Material Design Token System ─── */
+/* ─── Stitch Design System — Material Design 3 Tokens ─── */
 
 @theme inline {
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Pipeline stage colors (universal) */
+  /* Stitch M3 Color Tokens */
+  --color-primary: #e9c176;
+  --color-on-primary: #412d00;
+  --color-primary-container: #c5a059;
+  --color-on-primary-container: #4e3700;
+  --color-background: #10141a;
+  --color-on-background: #dfe2eb;
+  --color-surface: #10141a;
+  --color-on-surface: #dfe2eb;
+  --color-surface-container-lowest: #0a0e14;
+  --color-surface-container-low: #181c22;
+  --color-surface-container: #1c2026;
+  --color-surface-container-high: #262a31;
+  --color-surface-container-highest: #31353c;
+  --color-surface-variant: #31353c;
+  --color-on-surface-variant: #d1c5b4;
+  --color-outline: #9a8f80;
+  --color-outline-variant: #4e4639;
+  --color-secondary: #bbc6e2;
+  --color-on-secondary: #263046;
+  --color-secondary-container: #3e4960;
+  --color-tertiary: #b0c6f9;
+  --color-on-tertiary: #173059;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+
+  /* Pipeline stage colors */
   --color-stage-prospect: #6b7280;
   --color-stage-intro: #3b82f6;
   --color-stage-meeting: #f59e0b;
@@ -21,76 +47,33 @@
   --color-warmth-warm: #eab308;
   --color-warmth-cooling: #f97316;
   --color-warmth-cold: #ef4444;
-}
 
-/* ─── Light Theme (default — Google style) ─── */
-:root {
-  --bg: #f8f9fa;
-  --bg-surface: #ffffff;
-  --bg-surface-hover: #f1f3f4;
-  --bg-surface-active: #e8eaed;
-  --bg-sidebar: #ffffff;
-  --bg-elevated: #ffffff;
-
-  --text-primary: #1f1f1f;
-  --text-secondary: #5f6368;
-  --text-tertiary: #80868b;
-  --text-on-primary: #ffffff;
-
-  --border: #dadce0;
-  --border-subtle: #e8eaed;
-  --border-focus: #1a73e8;
-
-  --accent: #1a73e8;
-  --accent-hover: #1765cc;
-  --accent-surface: #e8f0fe;
-
-  --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.1);
-  --shadow-md: 0 1px 3px 0 rgba(60, 64, 67, 0.15), 0 1px 2px -1px rgba(60, 64, 67, 0.1);
-  --shadow-lg: 0 4px 6px -1px rgba(60, 64, 67, 0.1), 0 2px 4px -2px rgba(60, 64, 67, 0.1);
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-full: 9999px;
-}
-
-/* ─── Dark Theme (CE palette) ─── */
-.dark {
-  --bg: #0c1222;
-  --bg-surface: #161f32;
-  --bg-surface-hover: #1c2740;
-  --bg-surface-active: #22304d;
-  --bg-sidebar: #0a0f1c;
-  --bg-elevated: #1a2438;
-
-  --text-primary: #e8eaed;
-  --text-secondary: #9aa0a6;
-  --text-tertiary: #5f6368;
-  --text-on-primary: #ffffff;
-
-  --border: #2a3450;
-  --border-subtle: #1e293b;
-  --border-focus: #4a9eff;
-
-  --accent: #4a9eff;
-  --accent-hover: #6ab4ff;
-  --accent-surface: rgba(74, 158, 255, 0.1);
-
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  /* Font families */
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Space Grotesk", sans-serif;
 }
 
 /* ─── Base Styles ─── */
 body {
-  background: var(--bg);
-  color: var(--text-primary);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  background: #10141a;
+  color: #dfe2eb;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
 }
 
 /* ─── Material Symbols ─── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 20px;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Legacy support */
 .material-symbols-rounded {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
@@ -99,29 +82,35 @@ body {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* ─── Glass Morphism ─── */
+.glass-header {
+  background: rgba(16, 20, 26, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.tonal-shift {
+  background-color: #181c22;
+}
+
 /* ─── Scrollbar (subtle) ─── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+::-webkit-scrollbar-thumb { background: #4e4639; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9a8f80; }
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ─── Selection ─── */
 ::selection {
-  background: var(--accent-surface);
-  color: var(--accent);
+  background: rgba(233, 193, 118, 0.3);
+  color: #e9c176;
 }
 
-/* ─── Tabular Numbers for Financial Data ─── */
+/* ─── Tabular Numbers ─── */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
-}
-
-/* ─── Transitions ─── */
-* {
-  transition-property: background-color, border-color, color, opacity;
-  transition-duration: 150ms;
-  transition-timing-function: ease;
 }
 
 /* ─── Mobile PWA Safe Area ─── */

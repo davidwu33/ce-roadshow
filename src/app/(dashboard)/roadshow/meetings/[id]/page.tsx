@@ -5,78 +5,16 @@ import Link from "next/link";
 import { useMeeting } from "@/hooks/use-roadshow";
 import { useState, useCallback } from "react";
 
-const STATUS_COLORS: Record<string, string> = {
-  planned: "#3b82f6",
-  confirmed: "#22c55e",
-  completed: "#6b7280",
-  cancelled: "#ef4444",
+const STAGE_LABELS: Record<string, string> = {
+  prospect: "PROSPECT",
+  intro: "INTRODUCTION",
+  meeting: "MEETING_PHASE",
+  dd: "DUE_DILIGENCE",
+  soft_circle: "SOFT_CIRCLE",
+  committed: "COMMITTED",
+  closed: "CLOSED",
+  passed: "PASSED",
 };
-
-const STAGE_COLORS: Record<string, string> = {
-  prospect: "#6b7280",
-  intro: "#3b82f6",
-  meeting: "#f59e0b",
-  dd: "#8b5cf6",
-  soft_circle: "#06b6d4",
-  committed: "#22c55e",
-  closed: "#10b981",
-  passed: "#ef4444",
-};
-
-function ActionItem({
-  item,
-  index,
-  onToggle,
-}: {
-  item: { task: string; owner: string; due?: string; done: boolean };
-  index: number;
-  onToggle: (index: number) => void;
-}) {
-  return (
-    <button
-      onClick={() => onToggle(index)}
-      className="flex items-start gap-3 w-full text-left min-h-[44px] py-2"
-    >
-      <span
-        className="material-symbols-rounded text-[20px] mt-0.5"
-        style={{
-          color: item.done ? "#22c55e" : "var(--text-tertiary)",
-        }}
-      >
-        {item.done ? "check_circle" : "radio_button_unchecked"}
-      </span>
-      <div className="flex-1">
-        <span
-          className="text-sm"
-          style={{
-            color: item.done
-              ? "var(--text-tertiary)"
-              : "var(--text-primary)",
-            textDecoration: item.done ? "line-through" : "none",
-          }}
-        >
-          {item.task}
-        </span>
-        <div className="flex gap-2 mt-0.5">
-          <span
-            className="text-xs"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            {item.owner}
-          </span>
-          {item.due && (
-            <span
-              className="text-xs font-mono tabular-nums"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              {item.due}
-            </span>
-          )}
-        </div>
-      </div>
-    </button>
-  );
-}
 
 function MeetingDetail({ meetingId }: { meetingId: string }) {
   const { data: meeting, isLoading, mutate } = useMeeting(meetingId);
@@ -87,10 +25,7 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
       if (!meeting?.actionItems) return;
       const items = [...(meeting.actionItems as any[])];
       items[index] = { ...items[index], done: !items[index].done };
-
-      // Optimistic update
       mutate({ ...meeting, actionItems: items }, false);
-
       setSaving(true);
       await fetch(`/api/roadshow/meetings/${meetingId}`, {
         method: "PATCH",
@@ -105,373 +40,310 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
 
   if (isLoading || !meeting) {
     return (
-      <div className="animate-pulse space-y-4">
-        <div
-          className="h-8 w-2/3 rounded"
-          style={{ background: "var(--bg-surface)" }}
-        />
-        <div
-          className="h-64 rounded-xl"
-          style={{ background: "var(--bg-surface)" }}
-        />
+      <div className="animate-pulse space-y-4 px-4 max-w-5xl mx-auto">
+        <div className="h-32 rounded-sm bg-[#181c22]" />
+        <div className="h-48 rounded-sm bg-[#181c22]" />
       </div>
     );
   }
 
-  const statusColor = STATUS_COLORS[meeting.status] ?? "#6b7280";
-  const stageColor = meeting.orgStage
-    ? STAGE_COLORS[meeting.orgStage] ?? "#6b7280"
-    : null;
   const attendees = Array.isArray(meeting.attendees) ? meeting.attendees : [];
   const actionItems = Array.isArray(meeting.actionItems)
     ? (meeting.actionItems as any[])
     : [];
+  const completedCount = actionItems.filter((a: any) => a.done).length;
 
   const dateStr = meeting.meetingDate
     ? new Date(meeting.meetingDate + "T00:00:00").toLocaleDateString("en", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
+        hour: undefined,
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       })
     : "TBD";
 
+  const timeStr = meeting.meetingTime
+    ? `${meeting.meetingTime.slice(0, 5)} ${meeting.timezone ?? ""}`
+    : "";
+
   return (
-    <div className="space-y-5 max-w-3xl">
-      {/* Back + Header */}
-      <div>
-        <Link
-          href="/roadshow/meetings"
-          className="inline-flex items-center gap-1 text-sm mb-3 min-h-[44px]"
-          style={{ color: "var(--text-secondary)" }}
-        >
-          <span className="material-symbols-rounded text-[18px]">
-            arrow_back
-          </span>
-          Meetings
-        </Link>
-
-        <h1
-          className="text-lg md:text-xl font-bold"
-          style={{ color: "var(--text-primary)" }}
-        >
-          {meeting.title}
-        </h1>
-
-        <div className="flex flex-wrap items-center gap-3 mt-2">
-          <span
-            className="text-sm font-mono tabular-nums"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {dateStr}
-          </span>
-          {meeting.meetingTime && (
-            <span
-              className="text-sm font-mono tabular-nums"
-              style={{ color: "var(--text-primary)" }}
+    <main className="px-4 md:px-8 max-w-5xl mx-auto space-y-6">
+      {/* Meeting Header */}
+      <section className="bg-[#181c22] p-6 rounded-sm space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h1 className="font-[Manrope] text-2xl font-bold text-[#dfe2eb] tracking-tight">
+                {meeting.title}
+              </h1>
+              {meeting.language && (
+                <span className="px-2 py-0.5 bg-[#e9c176] text-[#412d00] font-[Space_Grotesk] text-[10px] font-bold rounded-sm">
+                  {meeting.language.toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-4 text-[#d1c5b4] font-[Space_Grotesk] text-xs uppercase tracking-widest">
+              {timeStr && (
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">
+                    schedule
+                  </span>
+                  <span>
+                    {timeStr} · {dateStr}
+                  </span>
+                </div>
+              )}
+              {meeting.location && (
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">
+                    location_on
+                  </span>
+                  <a
+                    href={`https://maps.apple.com/?q=${encodeURIComponent(meeting.location)}`}
+                    className="hover:text-[#e9c176] transition-colors"
+                  >
+                    {meeting.location}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              href="/roadshow/timeline"
+              className="px-4 py-2 border border-[#4e4639]/30 text-[#e9c176] font-[Space_Grotesk] text-xs font-bold rounded-sm hover:bg-[#1c2026] transition-colors active:scale-95"
             >
-              {meeting.meetingTime.slice(0, 5)}
-            </span>
-          )}
-          {meeting.durationMin && (
-            <span
-              className="text-xs px-2 py-0.5 rounded"
-              style={{
-                background: "var(--bg-surface)",
-                color: "var(--text-tertiary)",
-              }}
-            >
-              {meeting.durationMin}min
-            </span>
-          )}
-          <span
-            className="text-[10px] font-medium uppercase px-2 py-0.5 rounded-full"
-            style={{
-              background: `${statusColor}20`,
-              color: statusColor,
-            }}
-          >
-            {meeting.status}
-          </span>
+              BACK
+            </Link>
+          </div>
         </div>
+      </section>
 
-        {meeting.location && (
-          <a
-            href={`https://maps.apple.com/?q=${encodeURIComponent(meeting.location)}`}
-            className="flex items-center gap-1.5 mt-2 text-sm min-h-[44px]"
-            style={{ color: "var(--accent)" }}
+      {/* Strategic Ask + Pitch Angle (Asymmetric Layout) */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {meeting.strategicAsk && (
+          <div className="md:col-span-3 bg-[#1c2026] p-6 rounded-sm space-y-4">
+            <div className="flex items-center gap-2 border-l-2 border-[#e9c176] pl-3">
+              <span className="font-[Manrope] text-xs font-bold text-[#e9c176] tracking-widest uppercase">
+                Strategic Ask
+              </span>
+            </div>
+            <p className="text-[#d1c5b4] leading-relaxed text-sm whitespace-pre-wrap">
+              {meeting.strategicAsk}
+            </p>
+          </div>
+        )}
+        {meeting.pitchAngle && (
+          <div
+            className={`${meeting.strategicAsk ? "md:col-span-2" : "md:col-span-5"} bg-[#1c2026] p-6 rounded-sm space-y-4 border-l border-[#4e4639]/10`}
           >
-            <span className="material-symbols-rounded text-[16px]">
-              location_on
-            </span>
-            {meeting.location}
-            <span className="material-symbols-rounded text-[14px]">
-              open_in_new
-            </span>
-          </a>
+            <div className="flex items-center gap-2 border-l-2 border-[#4e4639] pl-3">
+              <span className="font-[Manrope] text-xs font-bold text-[#d1c5b4] tracking-widest uppercase">
+                Pitch Angle
+              </span>
+            </div>
+            <p className="text-[#d1c5b4] leading-relaxed text-sm whitespace-pre-wrap">
+              {meeting.pitchAngle}
+            </p>
+          </div>
         )}
       </div>
 
-      {/* Strategic Brief — gold accent */}
-      {(meeting.strategicAsk || meeting.pitchAngle || meeting.introChain) && (
-        <div
-          className="rounded-xl p-4 space-y-4"
-          style={{
-            background: "rgba(255,186,5,0.05)",
-            border: "1px solid rgba(255,186,5,0.15)",
-          }}
-        >
-          {meeting.strategicAsk && (
-            <div>
-              <div
-                className="text-xs font-semibold uppercase mb-1"
-                style={{ color: "#ffba05" }}
-              >
-                Strategic Ask
-              </div>
-              <div
-                className="text-sm whitespace-pre-wrap"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {meeting.strategicAsk}
-              </div>
-            </div>
-          )}
-          {meeting.pitchAngle && (
-            <div>
-              <div
-                className="text-xs font-semibold uppercase mb-1"
-                style={{ color: "#ffba05", opacity: 0.7 }}
-              >
-                Pitch Angle
-              </div>
-              <div
-                className="text-sm whitespace-pre-wrap"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {meeting.pitchAngle}
-              </div>
-            </div>
-          )}
-          {meeting.introChain && (
-            <div>
-              <div
-                className="text-xs font-semibold uppercase mb-1"
-                style={{ color: "#ffba05", opacity: 0.7 }}
-              >
-                Intro Chain
-              </div>
-              <div
-                className="text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                {meeting.introChain}
-              </div>
-            </div>
-          )}
-        </div>
+      {/* CRM Data Table */}
+      {(meeting.orgName || meeting.orgStage) && (
+        <section className="bg-[#181c22] rounded-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#4e4639]/5 flex justify-between items-center">
+            <h2 className="font-[Manrope] text-sm font-bold text-[#dfe2eb] uppercase tracking-wider">
+              Entity Financials & Pipeline
+            </h2>
+            <span className="font-[Space_Grotesk] text-[11px] text-[#d1c5b4]">
+              SOURCE: ORBIT_CRM
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-[#31353c]/30">
+                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#d1c5b4] uppercase tracking-widest">
+                    Pipeline Stage
+                  </th>
+                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#d1c5b4] uppercase tracking-widest text-right">
+                    Commitment Size
+                  </th>
+                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#d1c5b4] uppercase tracking-widest">
+                    Relationship Owner
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#10141a]/40">
+                <tr className="hover:bg-[#1c2026] transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#e9c176]" />
+                      <span className="font-[Space_Grotesk] text-sm text-[#dfe2eb]">
+                        {STAGE_LABELS[meeting.orgStage ?? ""] ?? meeting.orgStage?.toUpperCase() ?? "—"}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="font-[Space_Grotesk] text-sm text-[#e9c176]">
+                      {meeting.orgTargetCommitment
+                        ? `$${Number(meeting.orgTargetCommitment).toLocaleString()}`
+                        : "—"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-[Space_Grotesk] text-sm text-[#d1c5b4]">
+                      {meeting.orgRelationshipOwner ?? "—"}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
 
-      {/* CRM Dossier — if linked to org */}
-      {meeting.orgName && (
-        <div
-          className="rounded-xl p-4"
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div
-            className="text-xs font-semibold uppercase mb-3"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            CRM Dossier
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <div
-                className="text-xs"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                Organization
-              </div>
-              <div
-                className="text-sm font-medium"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {meeting.orgName}
-              </div>
+      {/* Attendees & Intro Chain */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Attendees */}
+        {attendees.length > 0 && (
+          <div className="bg-[#1c2026] p-6 rounded-sm space-y-6">
+            <h3 className="font-[Manrope] text-xs font-bold text-[#d1c5b4] uppercase tracking-widest flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">groups</span>
+              Key Attendees
+            </h3>
+            <div className="space-y-4">
+              {attendees.map((a: any, i: number) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-4 p-3 bg-[#181c22] rounded-sm"
+                >
+                  <div className="w-10 h-10 bg-[#31353c] flex items-center justify-center rounded-sm">
+                    <span className="material-symbols-outlined text-[#e9c176]">
+                      person
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-[Manrope] text-sm font-bold text-[#dfe2eb]">
+                      {a.name}
+                    </p>
+                    <p className="font-[Space_Grotesk] text-[11px] text-[#d1c5b4] uppercase tracking-tighter">
+                      {[a.title, a.org].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-            {meeting.orgStage && (
-              <div>
-                <div
-                  className="text-xs"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  Pipeline Stage
-                </div>
-                <span
-                  className="inline-block text-[10px] font-medium uppercase px-2 py-0.5 rounded-full mt-1"
-                  style={{
-                    background: `${stageColor}20`,
-                    color: stageColor!,
-                  }}
-                >
-                  {meeting.orgStage}
-                </span>
-              </div>
-            )}
-            {meeting.orgTargetCommitment && (
-              <div>
-                <div
-                  className="text-xs"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  Target Commitment
-                </div>
-                <div
-                  className="text-sm font-mono tabular-nums"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  ${Number(meeting.orgTargetCommitment).toLocaleString()}
-                </div>
-              </div>
-            )}
-            {meeting.orgRelationshipOwner && (
-              <div>
-                <div
-                  className="text-xs"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  Relationship Owner
-                </div>
-                <div
-                  className="text-sm"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {meeting.orgRelationshipOwner}
-                </div>
-              </div>
-            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Attendees */}
-      {attendees.length > 0 && (
-        <div
-          className="rounded-xl p-4"
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div
-            className="text-xs font-semibold uppercase mb-3"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            Attendees ({attendees.length})
-          </div>
-          <div className="space-y-3">
-            {attendees.map((a: any, i: number) => (
-              <div key={i} className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium"
-                  style={{
-                    background:
-                      a.role === "ce_team"
-                        ? "rgba(255,186,5,0.15)"
-                        : "var(--bg)",
-                    color:
-                      a.role === "ce_team"
-                        ? "#ffba05"
-                        : "var(--text-secondary)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  {(a.name?.[0] ?? "?").toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
+        {/* Intro Chain */}
+        {meeting.introChain && (
+          <div className="bg-[#1c2026] p-6 rounded-sm space-y-6">
+            <h3 className="font-[Manrope] text-xs font-bold text-[#d1c5b4] uppercase tracking-widest flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm">hub</span>
+              Intro Chain
+            </h3>
+            <div className="relative py-4 pl-4 space-y-8">
+              <div className="absolute left-6 top-6 bottom-6 w-px bg-[#4e4639]/30" />
+              {meeting.introChain.split("→").map((person: string, i: number, arr: string[]) => (
+                <div key={i} className="relative flex items-center gap-4 z-10">
                   <div
-                    className="text-sm font-medium truncate"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {a.name}
-                  </div>
-                  <div
-                    className="text-xs truncate"
-                    style={{ color: "var(--text-tertiary)" }}
-                  >
-                    {[a.title, a.org].filter(Boolean).join(" · ")}
+                    className={`w-4 h-4 rounded-full ring-4 ring-[#1c2026] ${
+                      i === 0 || i === arr.length - 1
+                        ? "bg-[#e9c176]"
+                        : "bg-[#31353c] border border-[#4e4639]"
+                    }`}
+                  />
+                  <div>
+                    <p className="font-[Manrope] text-[13px] font-bold text-[#dfe2eb]">
+                      {person.trim()}
+                    </p>
+                    <p className="font-[Space_Grotesk] text-[10px] text-[#d1c5b4]">
+                      {i === 0
+                        ? "Originator"
+                        : i === arr.length - 1
+                          ? "Target"
+                          : "Connector"}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </section>
 
       {/* Prep Notes */}
       {meeting.prepNotes && (
-        <div
-          className="rounded-xl p-4"
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div
-            className="text-xs font-semibold uppercase mb-3"
-            style={{ color: "var(--text-tertiary)" }}
-          >
+        <section className="bg-[#1c2026] p-6 rounded-sm space-y-4">
+          <h3 className="font-[Manrope] text-xs font-bold text-[#d1c5b4] uppercase tracking-widest">
             Prep Notes
-          </div>
-          <div
-            className="text-sm whitespace-pre-wrap leading-relaxed"
-            style={{ color: "var(--text-primary)" }}
-          >
+          </h3>
+          <p className="text-[#d1c5b4] leading-relaxed text-sm whitespace-pre-wrap">
             {meeting.prepNotes}
-          </div>
-        </div>
+          </p>
+        </section>
       )}
 
-      {/* Action Items */}
+      {/* Action Items / Prep Checklist */}
       {actionItems.length > 0 && (
-        <div
-          className="rounded-xl p-4"
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div
-              className="text-xs font-semibold uppercase"
-              style={{ color: "var(--text-tertiary)" }}
-            >
-              Action Items
-            </div>
-            {saving && (
-              <span
-                className="material-symbols-rounded animate-spin text-[14px]"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                progress_activity
-              </span>
-            )}
+        <section className="bg-[#31353c]/40 p-6 rounded-sm border border-[#4e4639]/10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-[Manrope] text-xs font-bold text-[#dfe2eb] uppercase tracking-widest">
+              Prep Checklist
+            </h3>
+            <span className="font-[Space_Grotesk] text-[10px] text-[#e9c176]">
+              {completedCount}/{actionItems.length} COMPLETED
+              {saving && " · SAVING..."}
+            </span>
           </div>
-          <div className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
+          <div className="space-y-3">
             {actionItems.map((item: any, i: number) => (
-              <ActionItem
+              <label
                 key={i}
-                item={item}
-                index={i}
-                onToggle={toggleAction}
-              />
+                className="flex items-center gap-3 cursor-pointer group"
+              >
+                <div className="relative flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    checked={item.done}
+                    onChange={() => toggleAction(i)}
+                    className="peer sr-only"
+                  />
+                  <div
+                    className={`w-5 h-5 border rounded-sm transition-colors flex items-center justify-center ${
+                      item.done
+                        ? "border-[#e9c176] bg-[#e9c176]/20"
+                        : "border-[#4e4639] hover:border-[#e9c176]"
+                    }`}
+                  >
+                    {item.done && (
+                      <span className="material-symbols-outlined text-[14px] text-[#e9c176]">
+                        check
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span
+                  className={`text-sm ${
+                    item.done
+                      ? "text-[#d1c5b4] line-through opacity-60"
+                      : "text-[#dfe2eb] group-hover:text-[#e9c176] transition-colors"
+                  }`}
+                >
+                  {item.task}
+                  {item.owner && (
+                    <span className="text-[#d1c5b4] ml-2">— {item.owner}</span>
+                  )}
+                </span>
+              </label>
             ))}
           </div>
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 }
 

@@ -1,4 +1,4 @@
-import { MobileNav } from "@/components/roadshow/mobile-nav";
+import { MobileNav, TopBar } from "@/components/roadshow/mobile-nav";
 
 export default function RoadshowLayout({
   children,
@@ -7,7 +7,10 @@ export default function RoadshowLayout({
 }) {
   return (
     <>
-      <div className="pb-20 md:pb-0">{children}</div>
+      <div className="lg:hidden">
+        <TopBar />
+      </div>
+      <div className="pt-16 pb-32 lg:pt-0 lg:pb-0">{children}</div>
       <MobileNav />
     </>
   );

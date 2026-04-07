@@ -4,18 +4,11 @@ import Link from "next/link";
 import { useDefaultTrip, useTrip } from "@/hooks/use-roadshow";
 import type { MeetingWithOrg } from "@/db/queries/roadshow";
 
-const STATUS_COLORS: Record<string, string> = {
-  planned: "#3b82f6",
-  confirmed: "#22c55e",
-  completed: "#6b7280",
-  cancelled: "#ef4444",
-};
-
-const LEG_FLAGS: Record<string, string> = {
-  "Hong Kong": "🇭🇰",
-  China: "🇨🇳",
-  France: "🇫🇷",
-  "Los Angeles": "🇺🇸",
+const LEG_SUBTITLES: Record<string, string> = {
+  "Hong Kong": "Victoria Harbour Circuit",
+  "China — Shenzhen + Mainland": "Pudong Financial District",
+  "Paris — France Site Visit": "8th Arrondissement",
+  "Milken Conference": "Century City",
 };
 
 function getDaysInRange(start: string, end: string): string[] {
@@ -29,19 +22,114 @@ function getDaysInRange(start: string, end: string): string[] {
   return days;
 }
 
+function MeetingRow({
+  meeting,
+  isCurrent,
+  isPast,
+}: {
+  meeting: MeetingWithOrg;
+  isCurrent: boolean;
+  isPast: boolean;
+}) {
+  const time = meeting.meetingTime?.slice(0, 5) ?? "TBD";
+  const typeLabel = (meeting.meetingType ?? "meeting").toUpperCase().replace("_", " ");
+
+  if (isCurrent) {
+    return (
+      <Link href={`/roadshow/meetings/${meeting.id}`}>
+        <div className="flex gap-6 p-4 bg-[#181c22] border-l-2 border-[#e9c176] shadow-lg group relative active:scale-[0.98] transition-transform">
+          <div className="w-20 shrink-0 font-[Space_Grotesk] text-sm pt-1 text-[#e9c176] font-bold">
+            {time}
+          </div>
+          <div className="flex-grow">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] bg-[#e9c176] text-[#412d00] px-1 font-[Space_Grotesk] font-bold tracking-tighter">
+                CURRENT
+              </span>
+              <div className="text-xs font-[Space_Grotesk] text-[#e9c176] uppercase">
+                {typeLabel}
+              </div>
+            </div>
+            <h3 className="font-[Manrope] font-bold text-lg leading-tight text-[#dfe2eb]">
+              {meeting.title}
+            </h3>
+            <p className="text-sm text-[#d1c5b4] mt-1 line-clamp-1">
+              {meeting.strategicAsk?.split("\n")[0] ?? ""}
+            </p>
+            {meeting.location && (
+              <div className="mt-4 flex gap-3">
+                <div className="bg-[#31353c] px-3 py-1 rounded-sm text-[11px] font-[Space_Grotesk] text-[#d1c5b4]">
+                  {meeting.location}
+                </div>
+                {meeting.language === "zh" && (
+                  <div className="bg-[#31353c] px-3 py-1 rounded-sm text-[11px] font-[Space_Grotesk] text-[#d1c5b4]">
+                    中文
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="shrink-0 pt-1">
+            <span
+              className="material-symbols-outlined text-[#e9c176]"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              sensors
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <Link href={`/roadshow/meetings/${meeting.id}`}>
+      <div
+        className={`flex gap-6 p-4 hover:bg-[#1c2026] transition-colors group active:scale-[0.98] ${
+          isPast ? "opacity-40" : ""
+        }`}
+      >
+        <div className="w-20 shrink-0 font-[Space_Grotesk] text-sm pt-1 text-[#d1c5b4]">
+          {time}
+        </div>
+        <div className="flex-grow">
+          <div className="text-xs font-[Space_Grotesk] text-[#d1c5b4] mb-1 uppercase">
+            {typeLabel}
+          </div>
+          <h3 className="font-[Manrope] font-bold text-lg leading-tight text-[#dfe2eb]">
+            {meeting.title}
+          </h3>
+          <p className="text-sm text-[#d1c5b4] mt-1 line-clamp-1">
+            {meeting.strategicAsk?.split("\n")[0] ?? meeting.location ?? ""}
+          </p>
+        </div>
+        <div className="shrink-0 pt-1">
+          {isPast ? (
+            <span className="material-symbols-outlined text-[#d1c5b4]">
+              check_circle
+            </span>
+          ) : (
+            <span className="material-symbols-outlined text-[#4e4639]">
+              schedule
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function TimelineView({ tripId }: { tripId: string }) {
   const { data, isLoading } = useTrip(tripId);
   const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
   if (isLoading || !data) {
     return (
-      <div className="animate-pulse space-y-4">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="h-32 rounded-xl"
-            style={{ background: "var(--bg-surface)" }}
-          />
+      <div className="animate-pulse space-y-4 px-4 max-w-4xl mx-auto">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-40 rounded-lg bg-[#181c22]" />
         ))}
       </div>
     );
@@ -49,7 +137,6 @@ function TimelineView({ tripId }: { tripId: string }) {
 
   const { legs, meetings } = data;
 
-  // Group meetings by date
   const meetingsByDate: Record<string, MeetingWithOrg[]> = {};
   for (const m of meetings) {
     if (m.meetingDate) {
@@ -58,177 +145,74 @@ function TimelineView({ tripId }: { tripId: string }) {
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <h1
-        className="text-lg font-bold"
-        style={{ color: "var(--text-primary)" }}
-      >
-        Timeline
-      </h1>
+  // Find current meeting
+  const todayMeetings = meetingsByDate[today] ?? [];
+  const currentMeeting = todayMeetings.find(
+    (m) =>
+      m.status !== "completed" &&
+      m.status !== "cancelled" &&
+      (m.meetingTime ?? "99:99") >= currentTime
+  );
 
+  return (
+    <main className="max-w-4xl mx-auto px-4">
       {legs.map((leg) => {
-        const days = getDaysInRange(leg.startDate, leg.endDate);
-        const flag =
-          LEG_FLAGS[leg.city ?? ""] ??
-          LEG_FLAGS[leg.country ?? ""] ??
-          "📍";
+        const legMeetings = meetings.filter((m) => m.legId === leg.id);
+        const subtitle = LEG_SUBTITLES[leg.name] ?? leg.city ?? "";
+        const dateRange = `${leg.startDate.replace("2026-", "APR ").replace("-", " ")} — ${leg.endDate.replace("2026-", "APR ").replace("-", " ")}`;
+        const tz = leg.timezone?.split("/").pop() ?? "";
 
         return (
-          <div key={leg.id}>
-            {/* Leg header — sticky */}
-            <div
-              className="sticky top-0 z-10 py-2 -mx-4 px-4 md:mx-0 md:px-0"
-              style={{ background: "var(--bg)" }}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{flag}</span>
-                <span
-                  className="font-semibold text-sm"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {leg.name}
-                </span>
-                <span
-                  className="text-xs font-mono tabular-nums"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  {leg.startDate} → {leg.endDate}
-                </span>
-                {leg.timezone && (
-                  <span
-                    className="text-[10px] px-1.5 py-0.5 rounded"
-                    style={{
-                      background: "var(--bg-surface)",
-                      color: "var(--text-tertiary)",
-                    }}
-                  >
-                    {leg.timezone.split("/").pop()}
-                  </span>
-                )}
+          <section key={leg.id} className="mb-12">
+            <header className="sticky top-16 z-40 py-6 bg-[#10141a]/95 backdrop-blur-sm border-b border-[#4e4639]/15 mb-6">
+              <div className="flex items-end justify-between gap-4">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 text-[#d1c5b4] font-[Space_Grotesk] text-[11px] uppercase tracking-[0.2em] mb-1">
+                    <span className="material-symbols-outlined text-[14px]">
+                      location_on
+                    </span>
+                    {(leg.city ?? leg.name).toUpperCase()}
+                  </div>
+                  <h2 className="font-[Manrope] text-2xl font-bold tracking-tight text-[#dfe2eb]">
+                    {subtitle}
+                  </h2>
+                </div>
+                <div className="text-right whitespace-nowrap">
+                  <div className="font-[JetBrains_Mono] text-[#e9c176] font-bold text-lg tracking-tighter">
+                    {leg.startDate.slice(5).replace("-", "/")} — {leg.endDate.slice(5).replace("-", "/")}
+                  </div>
+                  <div className="font-[JetBrains_Mono] text-[10px] text-[#d1c5b4] opacity-80 uppercase tracking-wider">
+                    {leg.timezone ?? ""}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Days */}
-            <div className="space-y-3 ml-3 border-l-2 pl-4" style={{ borderColor: "var(--border-subtle)" }}>
-              {days.map((day) => {
-                const dayMeetings = meetingsByDate[day] ?? [];
-                const isToday = day === today;
-                const isPast = day < today;
-                const dateObj = new Date(day + "T00:00:00");
-                const dayLabel = dateObj.toLocaleDateString("en", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                });
+            </header>
+            <div className="space-y-1">
+              {legMeetings.map((m) => {
+                const isPast =
+                  (m.meetingDate ?? "") < today ||
+                  m.status === "completed";
+                const isCurrent = m.id === currentMeeting?.id;
 
                 return (
-                  <div
-                    key={day}
-                    className="relative"
-                    style={{ opacity: isPast ? 0.5 : 1 }}
-                  >
-                    {/* Timeline dot */}
-                    <div
-                      className="absolute -left-[21px] top-1 w-3 h-3 rounded-full border-2"
-                      style={{
-                        background: isToday
-                          ? "#ffba05"
-                          : dayMeetings.length > 0
-                            ? "var(--accent)"
-                            : "var(--bg)",
-                        borderColor: isToday
-                          ? "#ffba05"
-                          : dayMeetings.length > 0
-                            ? "var(--accent)"
-                            : "var(--border-subtle)",
-                      }}
-                    />
-
-                    {/* Date label */}
-                    <div
-                      className="text-xs font-medium mb-1"
-                      style={{
-                        color: isToday ? "#ffba05" : "var(--text-secondary)",
-                      }}
-                    >
-                      {dayLabel}
-                      {isToday && (
-                        <span className="ml-2 text-[10px] font-semibold uppercase">
-                          TODAY
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Meeting cards */}
-                    {dayMeetings.length > 0 ? (
-                      <div className="space-y-2">
-                        {dayMeetings.map((m) => {
-                          const statusColor =
-                            STATUS_COLORS[m.status] ?? "#6b7280";
-                          return (
-                            <Link
-                              key={m.id}
-                              href={`/roadshow/meetings/${m.id}`}
-                            >
-                              <div
-                                className="rounded-lg p-3 transition-all active:scale-[0.98]"
-                                style={{
-                                  background: "var(--bg-surface)",
-                                  border: isToday
-                                    ? "1px solid rgba(255,186,5,0.3)"
-                                    : "1px solid var(--border-subtle)",
-                                }}
-                              >
-                                <div className="flex items-center gap-2">
-                                  {m.meetingTime && (
-                                    <span
-                                      className="text-xs font-mono tabular-nums"
-                                      style={{ color: "var(--text-tertiary)" }}
-                                    >
-                                      {m.meetingTime.slice(0, 5)}
-                                    </span>
-                                  )}
-                                  <span
-                                    className="w-1.5 h-1.5 rounded-full"
-                                    style={{ background: statusColor }}
-                                  />
-                                  <span
-                                    className="text-sm font-medium truncate"
-                                    style={{ color: "var(--text-primary)" }}
-                                  >
-                                    {m.title}
-                                  </span>
-                                </div>
-                                {m.location && (
-                                  <div
-                                    className="text-xs mt-1 truncate ml-[58px]"
-                                    style={{ color: "var(--text-tertiary)" }}
-                                  >
-                                    {m.location}
-                                  </div>
-                                )}
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div
-                        className="text-xs py-1"
-                        style={{ color: "var(--text-tertiary)" }}
-                      >
-                        No meetings
-                      </div>
-                    )}
-                  </div>
+                  <MeetingRow
+                    key={m.id}
+                    meeting={m}
+                    isCurrent={isCurrent}
+                    isPast={isPast}
+                  />
                 );
               })}
+              {legMeetings.length === 0 && (
+                <div className="p-4 text-sm text-[#d1c5b4]">
+                  No meetings scheduled
+                </div>
+              )}
             </div>
-          </div>
+          </section>
         );
       })}
-    </div>
+    </main>
   );
 }
 
