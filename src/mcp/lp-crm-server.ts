@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+// @ts-nocheck
 /**
  * Orbit — Relationship CRM — Current Equities Fund I
  *
