@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Orbit — Orbit",
+  title: "Orbit",
   description: "Universal CRM — Synergis Capital · Current Equities · UUL Global",
   appleWebApp: {
     capable: true,
