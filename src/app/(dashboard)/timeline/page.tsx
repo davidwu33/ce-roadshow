@@ -25,7 +25,7 @@ function MeetingRow({
 
   if (isCurrent) {
     return (
-      <Link href={`/roadshow/meetings/${meeting.id}`}>
+      <Link href={`/meetings/${meeting.id}`}>
         <div className="flex gap-6 p-4 bg-[#161f32] border-l-2 border-[#ffba05] shadow-lg group relative active:scale-[0.98] transition-transform">
           <div className="w-20 shrink-0 font-[Space_Grotesk] text-sm pt-1 text-[#ffba05] font-bold">
             {time}
@@ -72,7 +72,7 @@ function MeetingRow({
   }
 
   return (
-    <Link href={`/roadshow/meetings/${meeting.id}`}>
+    <Link href={`/meetings/${meeting.id}`}>
       <div
         className={`flex gap-6 p-4 hover:bg-[#1e2840] transition-colors group active:scale-[0.98] ${
           isPast ? "opacity-40" : ""
@@ -134,7 +134,6 @@ function TimelineView({ tripId }: { tripId: string }) {
     }
   }
 
-  // Find current meeting
   const todayMeetings = meetingsByDate[today] ?? [];
   const currentMeeting = todayMeetings.find(
     (m) =>

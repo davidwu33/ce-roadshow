@@ -36,7 +36,7 @@ function MeetingListCard({ meeting }: { meeting: MeetingWithOrg }) {
     : "TBD";
 
   return (
-    <Link href={`/roadshow/meetings/${meeting.id}`}>
+    <Link href={`/meetings/${meeting.id}`}>
       <div
         className="rounded-xl p-4 transition-all active:scale-[0.98]"
         style={{

@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 
 const TABS = [
   { href: "/", exact: true, icon: "grid_view", label: "TODAY" },
-  { href: "/roadshow/meetings", exact: false, icon: "groups", label: "MEETINGS" },
-  { href: "/roadshow/timeline", exact: false, icon: "timeline", label: "TIMELINE" },
+  { href: "/meetings", exact: false, icon: "groups", label: "MEETINGS" },
+  { href: "/timeline", exact: false, icon: "timeline", label: "TIMELINE" },
   { href: "/contacts", exact: false, icon: "contact_page", label: "CONTACTS" },
 ];
 
@@ -35,7 +35,6 @@ export function MobileNav() {
             className="flex flex-col items-center justify-center gap-1 flex-1 py-3 transition-all duration-200 active:opacity-60 relative"
             style={{ color: isActive ? "#ffba05" : "#6b7a99" }}
           >
-            {/* Gold top indicator */}
             {isActive && (
               <span
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
@@ -85,7 +84,7 @@ export function TopBar({ title }: { title?: string }) {
           className="text-lg font-black tracking-tighter"
           style={{ color: "#ffba05", fontFamily: "Manrope, sans-serif", letterSpacing: "-0.04em" }}
         >
-          {title ?? "ORBIT"}
+          {title ?? "CE ROADSHOW"}
         </span>
       </div>
       <div className="flex items-center gap-2">

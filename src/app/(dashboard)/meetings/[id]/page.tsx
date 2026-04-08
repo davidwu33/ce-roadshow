@@ -78,7 +78,7 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
     <main className="px-4 md:px-8 max-w-5xl mx-auto space-y-5 pb-6">
       {/* Back nav */}
       <Link
-        href="/roadshow/meetings"
+        href="/meetings"
         className="flex items-center gap-1 text-xs active:opacity-60"
         style={{ color: "#5f6368", fontFamily: "Space Grotesk, sans-serif" }}
       >
@@ -252,7 +252,6 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
 
       {/* Attendees & Intro Chain */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Attendees */}
         {attendees.length > 0 && (
           <div className="bg-[#1e2840] p-6 rounded-sm space-y-6">
             <h3 className="font-[Manrope] text-xs font-bold text-[#9aa0a6] uppercase tracking-widest flex items-center gap-2">
@@ -284,7 +283,6 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
           </div>
         )}
 
-        {/* Intro Chain */}
         {meeting.introChain && (
           <div className="bg-[#1e2840] p-6 rounded-sm space-y-6">
             <h3 className="font-[Manrope] text-xs font-bold text-[#9aa0a6] uppercase tracking-widest flex items-center gap-2">

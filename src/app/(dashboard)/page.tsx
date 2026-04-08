@@ -1,246 +1,355 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
-import { useOrganizations } from "@/hooks/use-organizations";
-import { usePipelineSummary } from "@/hooks/use-pipeline";
-import { WarmthDot } from "@/components/shared/warmth-dot";
-import { formatMoney } from "@/lib/format";
-import {
-  FUND_TARGET_MM,
-  STRATEGIC_CATEGORIES,
-  STRATEGIC_CATEGORY_MAP,
-  inferStrategicCategory,
-} from "@/lib/constants";
-import type { OrgWithMeta } from "@/db/queries/organizations";
+import { useDefaultTrip, useTrip } from "@/hooks/use-roadshow";
+import type { MeetingWithOrg } from "@/db/queries/roadshow";
 
-const STAGE_COLORS: Record<string, string> = {
-  prospect:    "#6b7280",
-  intro:       "#3b82f6",
-  meeting:     "#f59e0b",
-  dd:          "#8b5cf6",
-  soft_circle: "#06b6d4",
-  committed:   "#22c55e",
-  closed:      "#10b981",
-  passed:      "#ef4444",
-};
-
-const STAGE_LABELS: Record<string, string> = {
-  prospect:    "PROSPECT",
-  intro:       "INITIAL CONTACT",
-  meeting:     "MEETING",
-  dd:          "DUE DILIGENCE",
-  soft_circle: "SOFT CIRCLE",
-  committed:   "COMMITTED",
-  closed:      "CLOSED",
-  passed:      "PASSED",
-};
-
-function StagePill({ stage }: { stage: string }) {
-  const color = STAGE_COLORS[stage] ?? "#6b7280";
-  const label = STAGE_LABELS[stage] ?? stage.toUpperCase();
+function StatCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
-    <span
-      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-      style={{
-        fontFamily: "Space Grotesk, sans-serif",
-        letterSpacing: "0.06em",
-        color,
-        background: `${color}22`,
-        border: `1px solid ${color}44`,
-      }}
-    >
-      {label}
-    </span>
+    <div className="bg-[#161f32] p-4 rounded-lg flex flex-col gap-1">
+      <span className="font-[Space_Grotesk] text-[#9aa0a6] text-[11px] uppercase tracking-wider">
+        {label}
+      </span>
+      <span className="font-[Space_Grotesk] text-3xl font-bold text-[#ffba05]">
+        {value}
+      </span>
+    </div>
   );
 }
 
-function CategorySection({
-  category,
-  orgs,
+function CalendarStrip({
+  meetings,
+  legs,
+  today,
 }: {
-  category: (typeof STRATEGIC_CATEGORIES)[number];
-  orgs: OrgWithMeta[];
+  meetings: MeetingWithOrg[];
+  legs: any[];
+  today: string;
 }) {
-  if (orgs.length === 0) return null;
+  // Build day tiles from trip date range
+  const allDates: string[] = [];
+  if (legs.length > 0) {
+    const start = new Date(legs[0].startDate + "T00:00:00");
+    const end = new Date(legs[legs.length - 1].endDate + "T00:00:00");
+    const d = new Date(start);
+    while (d <= end) {
+      allDates.push(d.toISOString().split("T")[0]);
+      d.setDate(d.getDate() + 1);
+    }
+  }
+
+  const meetingsByDate: Record<string, number> = {};
+  for (const m of meetings) {
+    if (m.meetingDate) {
+      meetingsByDate[m.meetingDate] = (meetingsByDate[m.meetingDate] ?? 0) + 1;
+    }
+  }
 
   return (
-    <section>
-      {/* Section header */}
-      <div className="flex items-baseline justify-between mb-3 px-1">
-        <h2
-          className="text-sm font-black tracking-wider"
-          style={{ fontFamily: "Manrope, sans-serif", color: "#e8eaf0" }}
-        >
-          {category.label.toUpperCase()}
+    <section className="space-y-3">
+      <div className="flex justify-between items-center px-1">
+        <h2 className="font-[Manrope] font-bold text-sm uppercase tracking-widest text-[#9aa0a6]">
+          April 2026
         </h2>
-        <span className="text-xs" style={{ color: "#5f6368" }}>
-          {orgs.length} {orgs.length === 1 ? "Entity" : "Entities"}
+        <span className="material-symbols-outlined text-[#ffba05] text-sm">
+          calendar_month
         </span>
       </div>
+      <div className="flex gap-2 overflow-x-auto hide-scrollbar py-2">
+        {allDates.map((date) => {
+          const d = new Date(date + "T00:00:00");
+          const weekday = d.toLocaleDateString("en", { weekday: "short" }).toUpperCase();
+          const dayNum = String(d.getDate()).padStart(2, "0");
+          const isToday = date === today;
+          const count = meetingsByDate[date] ?? 0;
 
-      {/* LP rows */}
-      <div
-        className="rounded-xl overflow-hidden divide-y divide-[rgba(42,52,80,0.4)]"
-        style={{
-          background: "#161f32",
-          border: "1px solid rgba(42, 52, 80, 0.6)",
-        }}
-      >
-        {orgs.map((org) => (
-          <Link
-            key={org.id}
-            href={`/organizations/${org.id}`}
-            className="flex items-center gap-3 px-4 py-3.5 active:bg-[#1e3560] transition-colors"
-          >
-            {/* Warmth dot */}
-            <WarmthDot daysSinceTouch={org.daysSinceInteraction} size={8} />
-
-            {/* Name + location */}
-            <div className="flex-1 min-w-0">
-              <div
-                className="text-sm font-semibold truncate"
-                style={{ color: "#e8eaf0" }}
-              >
-                {org.name}
-              </div>
-              {org.headquarters && (
-                <div
-                  className="text-xs flex items-center gap-1 mt-0.5"
-                  style={{ color: "#5f6368" }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
-                    location_on
-                  </span>
-                  {org.headquarters}
-                </div>
-              )}
-            </div>
-
-            {/* Stage pill */}
-            <StagePill stage={org.stage} />
-
-            {/* Target commitment */}
-            {org.targetCommitment && (
+          return (
+            <div
+              key={date}
+              className={`flex-shrink-0 w-14 h-20 rounded-md flex flex-col items-center justify-center gap-1 ${
+                isToday
+                  ? "bg-[#d4920a]/20 border border-[#ffba05]/40"
+                  : "bg-[#161f32]"
+              }`}
+            >
               <span
-                className="text-sm font-semibold tabular-nums shrink-0"
-                style={{
-                  fontFamily: "JetBrains Mono, monospace",
-                  color: "#9aa0a6",
-                }}
+                className={`font-[Space_Grotesk] text-[10px] ${
+                  isToday ? "text-[#ffba05]" : "text-[#9aa0a6]"
+                }`}
               >
-                {formatMoney(Number(org.targetCommitment))}
+                {weekday}
               </span>
-            )}
-          </Link>
-        ))}
+              <span
+                className={`font-[Space_Grotesk] text-lg font-bold ${
+                  isToday ? "text-[#ffba05]" : "text-[#e8eaf0]"
+                }`}
+              >
+                {dayNum}
+              </span>
+              <div className="flex gap-0.5 mt-1">
+                {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-1 h-1 rounded-full ${
+                      isToday ? "bg-[#ffba05]" : "bg-[#2a3450]"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-export default function DashboardPage() {
-  const { data: orgs } = useOrganizations();
-  const { data: pipeline } = usePipelineSummary();
-
-  const committedPct = pipeline
-    ? Math.round((pipeline.totalCommitted / FUND_TARGET_MM) * 100)
-    : 0;
-
-  const totalPipeline = orgs?.length ?? 0;
-  const activeOrgs = orgs?.filter(
-    (o) => !["passed", "closed"].includes(o.stage)
-  ).length ?? 0;
-
-  const categorizedOrgs = useMemo(() => {
-    if (!orgs) return {};
-    const groups: Record<string, OrgWithMeta[]> = {};
-    for (const org of orgs) {
-      const cat = inferStrategicCategory(org);
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(org);
-    }
-    return groups;
-  }, [orgs]);
+function AgendaCard({
+  meeting,
+  isNext,
+}: {
+  meeting: MeetingWithOrg;
+  isNext: boolean;
+}) {
+  const isPast = meeting.status === "completed";
+  const time = meeting.meetingTime?.slice(0, 5) ?? "TBD";
+  const period = meeting.meetingTime
+    ? Number(meeting.meetingTime.slice(0, 2)) >= 12
+      ? "PM"
+      : "AM"
+    : "";
 
   return (
-    <div className="px-4 max-w-lg mx-auto space-y-6 py-4 lg:max-w-4xl lg:px-8">
-      {/* Hero — committed capital */}
+    <Link href={`/meetings/${meeting.id}`}>
       <div
-        className="rounded-xl p-5"
-        style={{
-          background: "#161f32",
-          border: "1px solid rgba(42, 52, 80, 0.6)",
-          borderLeft: "3px solid #ffba05",
-        }}
+        className={`p-4 rounded-md flex gap-4 active:scale-[0.98] transition-transform ${
+          isNext
+            ? "bg-[#1e2840] border-l-4 border-[#ffba05]"
+            : isPast
+              ? "bg-[#161f32]/50 opacity-60"
+              : "bg-[#161f32]"
+        }`}
       >
-        <div
-          className="text-[11px] font-bold tracking-widest mb-1"
-          style={{ fontFamily: "Space Grotesk, sans-serif", color: "#5f6368" }}
-        >
-          COMMITTED CAPITAL
-        </div>
-        <div className="flex items-baseline gap-3">
+        <div className="flex flex-col items-center w-12 border-r border-[#2a3450]/30 pr-4">
           <span
-            className="text-4xl font-black tabular-nums"
-            style={{ fontFamily: "Manrope, sans-serif", color: "#ffba05" }}
+            className={`font-[Space_Grotesk] text-[11px] ${
+              isNext ? "text-[#ffba05]" : "text-[#e8eaf0]"
+            }`}
           >
-            {pipeline ? formatMoney(pipeline.totalCommitted) : "—"}
+            {time}
           </span>
-          <span className="text-sm" style={{ color: "#22c55e" }}>
-            {committedPct}% of ${FUND_TARGET_MM}M target
+          <span
+            className={`font-[Space_Grotesk] text-[11px] ${
+              isNext ? "text-[#ffba05]" : "text-[#9aa0a6]"
+            }`}
+          >
+            {period}
           </span>
         </div>
-      </div>
-
-      {/* Two stat tiles */}
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { label: "TOTAL LPS", value: String(totalPipeline) },
-          { label: "PIPELINE", value: String(activeOrgs) },
-        ].map(({ label, value }) => (
-          <div
-            key={label}
-            className="rounded-xl p-4"
-            style={{
-              background: "#161f32",
-              border: "1px solid rgba(42, 52, 80, 0.6)",
-            }}
-          >
-            <div
-              className="text-[11px] font-bold tracking-widest mb-1"
-              style={{ fontFamily: "Space Grotesk, sans-serif", color: "#5f6368" }}
-            >
-              {label}
-            </div>
-            <div
-              className="text-3xl font-black tabular-nums"
-              style={{ fontFamily: "Manrope, sans-serif", color: "#e8eaf0" }}
-            >
-              {value}
-            </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <div className="flex justify-between items-start">
+            <span className="font-[Manrope] font-bold text-sm text-[#e8eaf0]">
+              {meeting.title}
+            </span>
+            {isNext && (
+              <span className="bg-[#ffba05]/10 text-[#ffba05] text-[9px] px-2 py-0.5 rounded uppercase font-[Space_Grotesk]">
+                Coming Up
+              </span>
+            )}
           </div>
-        ))}
+          {meeting.location && (
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[14px] text-[#9aa0a6]">
+                location_on
+              </span>
+              <span className="text-[11px] text-[#9aa0a6]">
+                {meeting.location}
+              </span>
+            </div>
+          )}
+          {meeting.strategicAsk && (
+            <div className="flex items-center gap-2 mt-1">
+              <span className="material-symbols-outlined text-[14px] text-[#9aa0a6]">
+                {meeting.meetingType === "dinner"
+                  ? "restaurant"
+                  : meeting.meetingType === "site_visit"
+                    ? "factory"
+                    : "groups"}
+              </span>
+              <span className="text-[11px] text-[#9aa0a6] line-clamp-1">
+                {meeting.strategicAsk.split("\n")[0]}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+    </Link>
+  );
+}
 
-      {/* Category LP lists */}
-      <div className="space-y-6">
-        {STRATEGIC_CATEGORIES.filter((c) => c.key !== "uncategorized").map(
-          (category) => (
-            <CategorySection
-              key={category.key}
-              category={category}
-              orgs={categorizedOrgs[category.key] ?? []}
-            />
-          )
-        )}
-        {categorizedOrgs["uncategorized"]?.length > 0 && (
-          <CategorySection
-            category={STRATEGIC_CATEGORY_MAP["uncategorized"]}
-            orgs={categorizedOrgs["uncategorized"]}
-          />
-        )}
+function TripHQ({ tripId }: { tripId: string }) {
+  const { data, isLoading } = useTrip(tripId);
+
+  if (isLoading || !data) {
+    return (
+      <div className="animate-pulse space-y-4 px-4 max-w-lg mx-auto">
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 rounded-lg bg-[#161f32]" />
+          ))}
+        </div>
       </div>
+    );
+  }
+
+  const { trip, legs, meetings } = data;
+  const today = new Date().toISOString().split("T")[0];
+  const todayMeetings = meetings.filter((m) => m.meetingDate === today);
+  const pendingActions = meetings.reduce((acc, m) => {
+    if (m.actionItems && Array.isArray(m.actionItems)) {
+      acc += (m.actionItems as any[]).filter((a: any) => !a.done).length;
+    }
+    return acc;
+  }, 0);
+
+  const endDate = new Date(trip.endDate);
+  const now = new Date();
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  );
+
+  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const upcomingTodayMeetings = todayMeetings.length > 0 ? todayMeetings : meetings
+    .filter((m) => (m.meetingDate ?? "") >= today && m.status !== "cancelled")
+    .slice(0, 4);
+
+  const nextMeeting = upcomingTodayMeetings.find(
+    (m) =>
+      m.status !== "completed" &&
+      m.status !== "cancelled" &&
+      (m.meetingDate === today
+        ? (m.meetingTime ?? "99:99") >= currentTime
+        : true)
+  );
+
+  return (
+    <div className="px-4 space-y-6 max-w-lg mx-auto">
+      {/* Stat Cards */}
+      <section className="grid grid-cols-2 gap-3">
+        <StatCard
+          label="Total Meetings"
+          value={String(meetings.length).padStart(2, "0")}
+        />
+        <StatCard
+          label="Today's Count"
+          value={String(todayMeetings.length).padStart(2, "0")}
+        />
+        <StatCard
+          label="Pending Items"
+          value={String(pendingActions).padStart(2, "0")}
+        />
+        <StatCard
+          label="Days Remaining"
+          value={String(daysRemaining).padStart(2, "0")}
+        />
+      </section>
+
+      {/* Calendar Strip */}
+      <CalendarStrip meetings={meetings} legs={legs} today={today} />
+
+      {/* Today's Agenda */}
+      <section className="space-y-4">
+        <h2 className="font-[Manrope] font-bold text-sm uppercase tracking-widest text-[#9aa0a6] px-1">
+          {todayMeetings.length > 0 ? "Today's Agenda" : "Upcoming"}
+        </h2>
+        <div className="space-y-3">
+          {upcomingTodayMeetings.map((m) => (
+            <AgendaCard
+              key={m.id}
+              meeting={m}
+              isNext={m.id === nextMeeting?.id}
+            />
+          ))}
+          {upcomingTodayMeetings.length === 0 && (
+            <div className="text-center py-8 text-sm text-[#9aa0a6]">
+              No meetings scheduled
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Pipeline Overview */}
+      <section className="bg-[#161f32] p-4 rounded-lg space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="font-[Manrope] font-bold text-xs uppercase tracking-widest text-[#9aa0a6]">
+            Active Deal Flow
+          </h3>
+          <span className="font-[Space_Grotesk] text-[10px] text-[#ffba05]">
+            Live Update
+          </span>
+        </div>
+        <div className="space-y-3">
+          {legs.map((leg) => {
+            const legMeetings = meetings.filter((m) => m.legId === leg.id);
+            const completed = legMeetings.filter(
+              (m) => m.status === "completed"
+            ).length;
+            const pct =
+              legMeetings.length > 0
+                ? Math.round((completed / legMeetings.length) * 100)
+                : 0;
+
+            return (
+              <div key={leg.id} className="flex items-center justify-between">
+                <span className="text-[11px] text-[#e8eaf0]">{leg.name}</span>
+                <div className="flex-1 mx-4 h-1 bg-[#2a3450] rounded-full overflow-hidden">
+                  <div
+                    className="bg-[#ffba05] h-full transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="font-[Space_Grotesk] text-[11px] text-[#ffba05] w-8 text-right">
+                  {pct}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
+}
+
+export default function TodayPage() {
+  const { data: trip, isLoading } = useDefaultTrip();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64 text-[#9aa0a6]">
+        <span className="material-symbols-outlined animate-spin text-[24px]">
+          progress_activity
+        </span>
+      </div>
+    );
+  }
+
+  if (!trip) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-2 text-[#9aa0a6]">
+        <span className="material-symbols-outlined text-[32px]">
+          flight_takeoff
+        </span>
+        <p className="text-sm">No roadshow trip found. Run the seed script.</p>
+      </div>
+    );
+  }
+
+  return <TripHQ tripId={trip.id} />;
 }

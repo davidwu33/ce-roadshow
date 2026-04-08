@@ -2,16 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/cn";
 
 const NAV_ITEMS = [
-  { href: "/", icon: "dashboard", label: "Dashboard" },
-  { href: "/roadshow", icon: "flight_takeoff", label: "Roadshow", accent: true },
-  { href: "/pipeline", icon: "view_kanban", label: "Pipeline" },
-  { href: "/organizations", icon: "corporate_fare", label: "Organizations" },
-  { href: "/contacts", icon: "people", label: "Contacts" },
-  { href: "/briefing", icon: "strategy", label: "Briefing" },
-  { href: "/analytics", icon: "monitoring", label: "Analytics" },
+  { href: "/", exact: true, icon: "grid_view", label: "Today" },
+  { href: "/meetings", exact: false, icon: "groups", label: "Meetings" },
+  { href: "/timeline", exact: false, icon: "timeline", label: "Timeline" },
+  { href: "/contacts", exact: false, icon: "contact_page", label: "Contacts" },
 ];
 
 export function Sidebar() {
@@ -21,23 +17,23 @@ export function Sidebar() {
     <aside
       className="fixed left-0 top-0 bottom-0 w-[220px] flex flex-col border-r"
       style={{
-        background: "var(--bg-sidebar)",
-        borderColor: "var(--border-subtle)",
+        background: "#080e1a",
+        borderColor: "rgba(42, 52, 80, 0.3)",
       }}
     >
       {/* Logo */}
       <div className="px-5 py-5 flex items-center gap-2.5">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
-          style={{ background: "var(--accent)" }}
+        <span
+          className="material-symbols-outlined"
+          style={{ color: "#ffba05", fontSize: "24px", fontVariationSettings: "'FILL' 1" }}
         >
-          O
-        </div>
+          rocket_launch
+        </span>
         <div>
-          <div className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
-            Orbit
+          <div className="font-black text-sm tracking-tighter" style={{ color: "#ffba05", fontFamily: "Manrope, sans-serif", letterSpacing: "-0.04em" }}>
+            CE ROADSHOW
           </div>
-          <div className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+          <div className="text-[11px]" style={{ color: "#5f6368" }}>
             Current Equities
           </div>
         </div>
@@ -46,42 +42,26 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5">
         {NAV_ITEMS.map((item) => {
-          const isActive =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
-          const goldAccent = "accent" in item && item.accent;
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                isActive
-                  ? "font-medium"
-                  : "hover:opacity-80"
-              )}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors"
               style={{
-                background: isActive
-                  ? goldAccent
-                    ? "rgba(255, 186, 5, 0.1)"
-                    : "var(--accent-surface)"
-                  : "transparent",
-                color: isActive
-                  ? goldAccent
-                    ? "#ffba05"
-                    : "var(--accent)"
-                  : goldAccent
-                    ? "#ffba05"
-                    : "var(--text-secondary)",
+                background: isActive ? "rgba(255, 186, 5, 0.1)" : "transparent",
+                color: isActive ? "#ffba05" : "#6b7a99",
               }}
             >
               <span
-                className={cn(
-                  "material-symbols-rounded text-[20px]",
-                  isActive && "filled"
-                )}
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: "20px",
+                  fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
+                }}
               >
                 {item.icon}
               </span>
@@ -95,8 +75,8 @@ export function Sidebar() {
       <div
         className="px-5 py-4 border-t text-[11px]"
         style={{
-          borderColor: "var(--border-subtle)",
-          color: "var(--text-tertiary)",
+          borderColor: "rgba(42, 52, 80, 0.3)",
+          color: "#5f6368",
         }}
       >
         Fund I — $500M Target
