@@ -6,31 +6,17 @@
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Stitch M3 Color Tokens */
-  --color-primary: #e9c176;
-  --color-on-primary: #412d00;
-  --color-primary-container: #c5a059;
-  --color-on-primary-container: #4e3700;
-  --color-background: #10141a;
-  --color-on-background: #dfe2eb;
-  --color-surface: #10141a;
-  --color-on-surface: #dfe2eb;
-  --color-surface-container-lowest: #0a0e14;
-  --color-surface-container-low: #181c22;
-  --color-surface-container: #1c2026;
-  --color-surface-container-high: #262a31;
-  --color-surface-container-highest: #31353c;
-  --color-surface-variant: #31353c;
-  --color-on-surface-variant: #d1c5b4;
-  --color-outline: #9a8f80;
-  --color-outline-variant: #4e4639;
-  --color-secondary: #bbc6e2;
-  --color-on-secondary: #263046;
-  --color-secondary-container: #3e4960;
-  --color-tertiary: #b0c6f9;
-  --color-on-tertiary: #173059;
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
+  /* CE Brand Colors */
+  --color-primary: #ffba05;
+  --color-on-primary: #0c1222;
+  --color-background: #0c1222;
+  --color-on-background: #e8eaf0;
+  --color-surface: #161f32;
+  --color-on-surface: #e8eaf0;
+  --color-surface-low: #1e2840;
+  --color-surface-high: #1e3560;
+  --color-outline: #2a3450;
+  --color-error: #ef4444;
 
   /* Pipeline stage colors */
   --color-stage-prospect: #6b7280;
@@ -54,36 +40,36 @@
   --font-label: "Space Grotesk", sans-serif;
 }
 
-/* ─── Stitch Design Tokens (semantic aliases) ─── */
+/* ─── CE Design Tokens ─── */
 :root {
   /* Backgrounds */
-  --bg-sidebar:           #0a0e14;
-  --bg-surface:           #1c2026;
-  --bg-elevated:          #262a31;
-  --bg-surface-hover:     #262a31;
-  --bg-surface-active:    #31353c;
+  --bg-sidebar:           #080e1a;
+  --bg-surface:           #161f32;
+  --bg-elevated:          #1e2840;
+  --bg-surface-hover:     #1e3560;
+  --bg-surface-active:    #2a3450;
 
   /* Text */
-  --text-primary:         #dfe2eb;
-  --text-secondary:       #d1c5b4;
-  --text-tertiary:        #9a8f80;
+  --text-primary:         #e8eaf0;
+  --text-secondary:       #9aa0a6;
+  --text-tertiary:        #5f6368;
 
   /* Borders */
-  --border-subtle:        #31353c;
+  --border-subtle:        rgba(42, 52, 80, 0.6);
 
-  /* Accent (gold) */
-  --accent:               #e9c176;
-  --accent-surface:       rgba(233, 193, 118, 0.12);
+  /* CE Gold */
+  --accent:               #ffba05;
+  --accent-surface:       rgba(255, 186, 5, 0.12);
 
   /* Shadows */
-  --shadow-sm:            0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-lg:            0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-sm:            0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lg:            0 8px 32px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Base Styles ─── */
 body {
-  background: #10141a;
-  color: #dfe2eb;
+  background: #0c1222;
+  color: #e8eaf0;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100dvh;

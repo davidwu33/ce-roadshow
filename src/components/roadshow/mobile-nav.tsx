@@ -4,44 +4,57 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/roadshow", icon: "calendar_today", label: "Today" },
-  { href: "/roadshow/meetings", icon: "groups", label: "Meetings" },
-  { href: "/roadshow/timeline", icon: "timeline", label: "Timeline" },
-  { href: "/roadshow/contacts", icon: "contact_page", label: "Contacts" },
+  { href: "/", exact: true, icon: "grid_view", label: "TODAY" },
+  { href: "/roadshow/meetings", exact: false, icon: "groups", label: "MEETINGS" },
+  { href: "/roadshow/timeline", exact: false, icon: "timeline", label: "TIMELINE" },
+  { href: "/contacts", exact: false, icon: "contact_page", label: "CONTACTS" },
 ];
 
 export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full flex justify-around items-center pt-3 pb-8 px-4 bg-slate-950/80 backdrop-blur-2xl z-50 border-t border-slate-800/30 shadow-2xl lg:hidden">
+    <nav
+      className="fixed bottom-0 left-0 w-full flex justify-around items-stretch z-50 lg:hidden"
+      style={{
+        background: "rgba(22, 31, 50, 0.92)",
+        backdropFilter: "blur(24px)",
+        borderTop: "1px solid rgba(42, 52, 80, 0.4)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
+    >
       {TABS.map((tab) => {
-        const isActive =
-          tab.href === "/roadshow"
-            ? pathname === "/roadshow"
-            : pathname.startsWith(tab.href);
+        const isActive = tab.exact
+          ? pathname === tab.href
+          : pathname.startsWith(tab.href);
 
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex flex-col items-center justify-center transition-all duration-200 active:opacity-70 ${
-              isActive
-                ? "text-[#e9c176]"
-                : "text-slate-500 hover:text-slate-200"
-            }`}
+            className="flex flex-col items-center justify-center gap-1 flex-1 py-3 transition-all duration-200 active:opacity-60 relative"
+            style={{ color: isActive ? "#ffba05" : "#6b7a99" }}
           >
+            {/* Gold top indicator */}
+            {isActive && (
+              <span
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                style={{ background: "#ffba05" }}
+              />
+            )}
             <span
-              className="material-symbols-outlined mb-1"
-              style={
-                isActive
-                  ? { fontVariationSettings: "'FILL' 1" }
-                  : undefined
-              }
+              className="material-symbols-outlined"
+              style={{
+                fontSize: "22px",
+                fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
+              }}
             >
               {tab.icon}
             </span>
-            <span className="font-[Space_Grotesk] text-[10px] tracking-tight">
+            <span
+              className="text-[10px] tracking-wider"
+              style={{ fontFamily: "Space Grotesk, sans-serif", fontWeight: isActive ? 600 : 400 }}
+            >
               {tab.label}
             </span>
           </Link>
@@ -53,23 +66,40 @@ export function MobileNav() {
 
 export function TopBar({ title }: { title?: string }) {
   return (
-    <header className="fixed top-0 w-full z-50 bg-slate-900/60 backdrop-blur-xl flex justify-between items-center px-6 h-16">
-      <div className="flex items-center gap-3">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <span className="material-symbols-outlined text-[#e9c176] absolute transform -translate-x-1">
-            double_arrow
-          </span>
-        </div>
-        <span className="text-[#e9c176] text-2xl font-black font-[Manrope] tracking-tighter">
+    <header
+      className="fixed top-0 w-full z-50 flex justify-between items-center px-5 h-16"
+      style={{
+        background: "rgba(8, 14, 26, 0.85)",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(42, 52, 80, 0.3)",
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className="material-symbols-outlined"
+          style={{ color: "#ffba05", fontSize: "24px", fontVariationSettings: "'FILL' 1" }}
+        >
+          rocket_launch
+        </span>
+        <span
+          className="text-lg font-black tracking-tighter"
+          style={{ color: "#ffba05", fontFamily: "Manrope, sans-serif", letterSpacing: "-0.04em" }}
+        >
           {title ?? "ORBIT"}
         </span>
       </div>
-      <div className="flex items-center gap-4">
-        <button className="p-2 text-slate-400 hover:bg-slate-800/50 transition-colors active:scale-95 duration-150">
-          <span className="material-symbols-outlined">search</span>
+      <div className="flex items-center gap-2">
+        <button
+          className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+          style={{ background: "rgba(42, 52, 80, 0.5)", color: "#9aa0a6" }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>search</span>
         </button>
-        <button className="p-2 text-slate-400 hover:bg-slate-800/50 transition-colors active:scale-95 duration-150">
-          <span className="material-symbols-outlined">more_vert</span>
+        <button
+          className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden"
+          style={{ background: "rgba(255, 186, 5, 0.15)", color: "#ffba05" }}
+        >
+          <span className="text-xs font-bold" style={{ fontFamily: "Space Grotesk, sans-serif" }}>JS</span>
         </button>
       </div>
     </header>

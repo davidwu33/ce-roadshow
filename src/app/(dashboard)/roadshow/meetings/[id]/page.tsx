@@ -41,8 +41,8 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
   if (isLoading || !meeting) {
     return (
       <div className="animate-pulse space-y-4 px-4 max-w-5xl mx-auto">
-        <div className="h-32 rounded-sm bg-[#181c22]" />
-        <div className="h-48 rounded-sm bg-[#181c22]" />
+        <div className="h-32 rounded-sm bg-[#161f32]" />
+        <div className="h-48 rounded-sm bg-[#161f32]" />
       </div>
     );
   }
@@ -66,83 +66,129 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
     ? `${meeting.meetingTime.slice(0, 5)} ${meeting.legTimezone ?? ""}`.trim()
     : "";
 
+  const STATUS_COLORS: Record<string, string> = {
+    planned: "#3b82f6",
+    confirmed: "#22c55e",
+    completed: "#6b7280",
+    cancelled: "#ef4444",
+  };
+  const statusColor = STATUS_COLORS[meeting.status ?? "planned"] ?? "#3b82f6";
+
   return (
-    <main className="px-4 md:px-8 max-w-5xl mx-auto space-y-6">
+    <main className="px-4 md:px-8 max-w-5xl mx-auto space-y-5 pb-6">
+      {/* Back nav */}
+      <Link
+        href="/roadshow/meetings"
+        className="flex items-center gap-1 text-xs active:opacity-60"
+        style={{ color: "#5f6368", fontFamily: "Space Grotesk, sans-serif" }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_back</span>
+        MEETINGS
+      </Link>
+
       {/* Meeting Header */}
-      <section className="bg-[#181c22] p-6 rounded-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="font-[Manrope] text-2xl font-bold text-[#dfe2eb] tracking-tight">
-                {meeting.title}
-              </h1>
-              {meeting.language && (
-                <span className="px-2 py-0.5 bg-[#e9c176] text-[#412d00] font-[Space_Grotesk] text-[10px] font-bold rounded-sm">
-                  {meeting.language.toUpperCase()}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-4 text-[#d1c5b4] font-[Space_Grotesk] text-xs uppercase tracking-widest">
-              {timeStr && (
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px]">
-                    schedule
-                  </span>
-                  <span>
-                    {timeStr} · {dateStr}
-                  </span>
-                </div>
-              )}
-              {meeting.location && (
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px]">
-                    location_on
-                  </span>
-                  <a
-                    href={`https://maps.apple.com/?q=${encodeURIComponent(meeting.location)}`}
-                    className="hover:text-[#e9c176] transition-colors"
-                  >
-                    {meeting.location}
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Link
-              href="/roadshow/timeline"
-              className="px-4 py-2 border border-[#4e4639]/30 text-[#e9c176] font-[Space_Grotesk] text-xs font-bold rounded-sm hover:bg-[#1c2026] transition-colors active:scale-95"
+      <section className="space-y-3">
+        {/* Badges row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {meeting.language && (
+            <span
+              className="text-[10px] font-bold px-2 py-0.5 rounded"
+              style={{
+                fontFamily: "Space Grotesk, sans-serif",
+                letterSpacing: "0.06em",
+                color: "#4a9eff",
+                background: "rgba(74, 158, 255, 0.15)",
+                border: "1px solid rgba(74, 158, 255, 0.3)",
+              }}
             >
-              BACK
-            </Link>
-          </div>
+              {meeting.language.toUpperCase()}
+            </span>
+          )}
+          {meeting.status && (
+            <span
+              className="text-[10px] font-bold px-2 py-0.5 rounded"
+              style={{
+                fontFamily: "Space Grotesk, sans-serif",
+                letterSpacing: "0.06em",
+                color: statusColor,
+                background: `${statusColor}22`,
+                border: `1px solid ${statusColor}44`,
+              }}
+            >
+              {meeting.status.toUpperCase()}
+            </span>
+          )}
+          {meeting.meetingType && (
+            <span
+              className="text-[10px] font-bold px-2 py-0.5 rounded"
+              style={{
+                fontFamily: "Space Grotesk, sans-serif",
+                letterSpacing: "0.06em",
+                color: "#9aa0a6",
+                background: "rgba(42, 52, 80, 0.5)",
+              }}
+            >
+              {meeting.meetingType.toUpperCase().replace("_", " ")}
+            </span>
+          )}
+        </div>
+
+        {/* Title */}
+        <h1
+          className="text-2xl font-black leading-tight"
+          style={{ fontFamily: "Manrope, sans-serif", color: "#e8eaf0" }}
+        >
+          {meeting.title}
+        </h1>
+
+        {/* Time + location */}
+        <div className="flex flex-col gap-1.5">
+          {timeStr && (
+            <div className="flex items-center gap-2 text-xs" style={{ color: "#9aa0a6" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>schedule</span>
+              <span style={{ fontFamily: "JetBrains Mono, monospace" }}>
+                {timeStr} · {dateStr}
+              </span>
+            </div>
+          )}
+          {meeting.location && (
+            <div className="flex items-center gap-2 text-xs" style={{ color: "#9aa0a6" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>location_on</span>
+              <a
+                href={`https://maps.apple.com/?q=${encodeURIComponent(meeting.location)}`}
+                className="hover:text-[#ffba05] transition-colors"
+              >
+                {meeting.location}
+              </a>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Strategic Ask + Pitch Angle (Asymmetric Layout) */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {meeting.strategicAsk && (
-          <div className="md:col-span-3 bg-[#1c2026] p-6 rounded-sm space-y-4">
-            <div className="flex items-center gap-2 border-l-2 border-[#e9c176] pl-3">
-              <span className="font-[Manrope] text-xs font-bold text-[#e9c176] tracking-widest uppercase">
+          <div className="md:col-span-3 bg-[#1e2840] p-6 rounded-sm space-y-4">
+            <div className="flex items-center gap-2 border-l-2 border-[#ffba05] pl-3">
+              <span className="font-[Manrope] text-xs font-bold text-[#ffba05] tracking-widest uppercase">
                 Strategic Ask
               </span>
             </div>
-            <p className="text-[#d1c5b4] leading-relaxed text-sm whitespace-pre-wrap">
+            <p className="text-[#9aa0a6] leading-relaxed text-sm whitespace-pre-wrap">
               {meeting.strategicAsk}
             </p>
           </div>
         )}
         {meeting.pitchAngle && (
           <div
-            className={`${meeting.strategicAsk ? "md:col-span-2" : "md:col-span-5"} bg-[#1c2026] p-6 rounded-sm space-y-4 border-l border-[#4e4639]/10`}
+            className={`${meeting.strategicAsk ? "md:col-span-2" : "md:col-span-5"} bg-[#1e2840] p-6 rounded-sm space-y-4 border-l border-[#2a3450]/10`}
           >
-            <div className="flex items-center gap-2 border-l-2 border-[#4e4639] pl-3">
-              <span className="font-[Manrope] text-xs font-bold text-[#d1c5b4] tracking-widest uppercase">
+            <div className="flex items-center gap-2 border-l-2 border-[#2a3450] pl-3">
+              <span className="font-[Manrope] text-xs font-bold text-[#9aa0a6] tracking-widest uppercase">
                 Pitch Angle
               </span>
             </div>
-            <p className="text-[#d1c5b4] leading-relaxed text-sm whitespace-pre-wrap">
+            <p className="text-[#9aa0a6] leading-relaxed text-sm whitespace-pre-wrap">
               {meeting.pitchAngle}
             </p>
           </div>
@@ -151,49 +197,49 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
 
       {/* CRM Data Table */}
       {(meeting.orgName || meeting.orgStage) && (
-        <section className="bg-[#181c22] rounded-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#4e4639]/5 flex justify-between items-center">
-            <h2 className="font-[Manrope] text-sm font-bold text-[#dfe2eb] uppercase tracking-wider">
+        <section className="bg-[#161f32] rounded-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#2a3450]/5 flex justify-between items-center">
+            <h2 className="font-[Manrope] text-sm font-bold text-[#e8eaf0] uppercase tracking-wider">
               Entity Financials & Pipeline
             </h2>
-            <span className="font-[Space_Grotesk] text-[11px] text-[#d1c5b4]">
+            <span className="font-[Space_Grotesk] text-[11px] text-[#9aa0a6]">
               SOURCE: ORBIT_CRM
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-[#31353c]/30">
-                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#d1c5b4] uppercase tracking-widest">
+                <tr className="bg-[#2a3450]/30">
+                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#9aa0a6] uppercase tracking-widest">
                     Pipeline Stage
                   </th>
-                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#d1c5b4] uppercase tracking-widest text-right">
+                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#9aa0a6] uppercase tracking-widest text-right">
                     Commitment Size
                   </th>
-                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#d1c5b4] uppercase tracking-widest">
+                  <th className="px-6 py-3 font-[Space_Grotesk] text-[10px] font-medium text-[#9aa0a6] uppercase tracking-widest">
                     Relationship Owner
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#10141a]/40">
-                <tr className="hover:bg-[#1c2026] transition-colors">
+              <tbody className="divide-y divide-[#0c1222]/40">
+                <tr className="hover:bg-[#1e2840] transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#e9c176]" />
-                      <span className="font-[Space_Grotesk] text-sm text-[#dfe2eb]">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#ffba05]" />
+                      <span className="font-[Space_Grotesk] text-sm text-[#e8eaf0]">
                         {STAGE_LABELS[meeting.orgStage ?? ""] ?? meeting.orgStage?.toUpperCase() ?? "—"}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="font-[Space_Grotesk] text-sm text-[#e9c176]">
+                    <span className="font-[Space_Grotesk] text-sm text-[#ffba05]">
                       {meeting.orgTargetCommitment
                         ? `$${Number(meeting.orgTargetCommitment).toLocaleString()}`
                         : "—"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-[Space_Grotesk] text-sm text-[#d1c5b4]">
+                    <span className="font-[Space_Grotesk] text-sm text-[#9aa0a6]">
                       {meeting.orgRelationshipOwner ?? "—"}
                     </span>
                   </td>
@@ -208,8 +254,8 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Attendees */}
         {attendees.length > 0 && (
-          <div className="bg-[#1c2026] p-6 rounded-sm space-y-6">
-            <h3 className="font-[Manrope] text-xs font-bold text-[#d1c5b4] uppercase tracking-widest flex items-center gap-2">
+          <div className="bg-[#1e2840] p-6 rounded-sm space-y-6">
+            <h3 className="font-[Manrope] text-xs font-bold text-[#9aa0a6] uppercase tracking-widest flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">groups</span>
               Key Attendees
             </h3>
@@ -217,18 +263,18 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
               {attendees.map((a: any, i: number) => (
                 <div
                   key={i}
-                  className="flex items-start gap-4 p-3 bg-[#181c22] rounded-sm"
+                  className="flex items-start gap-4 p-3 bg-[#161f32] rounded-sm"
                 >
-                  <div className="w-10 h-10 bg-[#31353c] flex items-center justify-center rounded-sm">
-                    <span className="material-symbols-outlined text-[#e9c176]">
+                  <div className="w-10 h-10 bg-[#2a3450] flex items-center justify-center rounded-sm">
+                    <span className="material-symbols-outlined text-[#ffba05]">
                       person
                     </span>
                   </div>
                   <div>
-                    <p className="font-[Manrope] text-sm font-bold text-[#dfe2eb]">
+                    <p className="font-[Manrope] text-sm font-bold text-[#e8eaf0]">
                       {a.name}
                     </p>
-                    <p className="font-[Space_Grotesk] text-[11px] text-[#d1c5b4] uppercase tracking-tighter">
+                    <p className="font-[Space_Grotesk] text-[11px] text-[#9aa0a6] uppercase tracking-tighter">
                       {[a.title, a.org].filter(Boolean).join(" · ")}
                     </p>
                   </div>
@@ -240,27 +286,27 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
 
         {/* Intro Chain */}
         {meeting.introChain && (
-          <div className="bg-[#1c2026] p-6 rounded-sm space-y-6">
-            <h3 className="font-[Manrope] text-xs font-bold text-[#d1c5b4] uppercase tracking-widest flex items-center gap-2">
+          <div className="bg-[#1e2840] p-6 rounded-sm space-y-6">
+            <h3 className="font-[Manrope] text-xs font-bold text-[#9aa0a6] uppercase tracking-widest flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">hub</span>
               Intro Chain
             </h3>
             <div className="relative py-4 pl-4 space-y-8">
-              <div className="absolute left-6 top-6 bottom-6 w-px bg-[#4e4639]/30" />
+              <div className="absolute left-6 top-6 bottom-6 w-px bg-[#2a3450]/30" />
               {meeting.introChain.split("→").map((person: string, i: number, arr: string[]) => (
                 <div key={i} className="relative flex items-center gap-4 z-10">
                   <div
-                    className={`w-4 h-4 rounded-full ring-4 ring-[#1c2026] ${
+                    className={`w-4 h-4 rounded-full ring-4 ring-[#1e2840] ${
                       i === 0 || i === arr.length - 1
-                        ? "bg-[#e9c176]"
-                        : "bg-[#31353c] border border-[#4e4639]"
+                        ? "bg-[#ffba05]"
+                        : "bg-[#2a3450] border border-[#2a3450]"
                     }`}
                   />
                   <div>
-                    <p className="font-[Manrope] text-[13px] font-bold text-[#dfe2eb]">
+                    <p className="font-[Manrope] text-[13px] font-bold text-[#e8eaf0]">
                       {person.trim()}
                     </p>
-                    <p className="font-[Space_Grotesk] text-[10px] text-[#d1c5b4]">
+                    <p className="font-[Space_Grotesk] text-[10px] text-[#9aa0a6]">
                       {i === 0
                         ? "Originator"
                         : i === arr.length - 1
@@ -277,11 +323,11 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
 
       {/* Prep Notes */}
       {meeting.prepNotes && (
-        <section className="bg-[#1c2026] p-6 rounded-sm space-y-4">
-          <h3 className="font-[Manrope] text-xs font-bold text-[#d1c5b4] uppercase tracking-widest">
+        <section className="bg-[#1e2840] p-6 rounded-sm space-y-4">
+          <h3 className="font-[Manrope] text-xs font-bold text-[#9aa0a6] uppercase tracking-widest">
             Prep Notes
           </h3>
-          <p className="text-[#d1c5b4] leading-relaxed text-sm whitespace-pre-wrap">
+          <p className="text-[#9aa0a6] leading-relaxed text-sm whitespace-pre-wrap">
             {meeting.prepNotes}
           </p>
         </section>
@@ -289,12 +335,12 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
 
       {/* Action Items / Prep Checklist */}
       {actionItems.length > 0 && (
-        <section className="bg-[#31353c]/40 p-6 rounded-sm border border-[#4e4639]/10">
+        <section className="bg-[#2a3450]/40 p-6 rounded-sm border border-[#2a3450]/10">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-[Manrope] text-xs font-bold text-[#dfe2eb] uppercase tracking-widest">
+            <h3 className="font-[Manrope] text-xs font-bold text-[#e8eaf0] uppercase tracking-widest">
               Prep Checklist
             </h3>
-            <span className="font-[Space_Grotesk] text-[10px] text-[#e9c176]">
+            <span className="font-[Space_Grotesk] text-[10px] text-[#ffba05]">
               {completedCount}/{actionItems.length} COMPLETED
               {saving && " · SAVING..."}
             </span>
@@ -315,12 +361,12 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
                   <div
                     className={`w-5 h-5 border rounded-sm transition-colors flex items-center justify-center ${
                       item.done
-                        ? "border-[#e9c176] bg-[#e9c176]/20"
-                        : "border-[#4e4639] hover:border-[#e9c176]"
+                        ? "border-[#ffba05] bg-[#ffba05]/20"
+                        : "border-[#2a3450] hover:border-[#ffba05]"
                     }`}
                   >
                     {item.done && (
-                      <span className="material-symbols-outlined text-[14px] text-[#e9c176]">
+                      <span className="material-symbols-outlined text-[14px] text-[#ffba05]">
                         check
                       </span>
                     )}
@@ -329,13 +375,13 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
                 <span
                   className={`text-sm ${
                     item.done
-                      ? "text-[#d1c5b4] line-through opacity-60"
-                      : "text-[#dfe2eb] group-hover:text-[#e9c176] transition-colors"
+                      ? "text-[#9aa0a6] line-through opacity-60"
+                      : "text-[#e8eaf0] group-hover:text-[#ffba05] transition-colors"
                   }`}
                 >
                   {item.task}
                   {item.owner && (
-                    <span className="text-[#d1c5b4] ml-2">— {item.owner}</span>
+                    <span className="text-[#9aa0a6] ml-2">— {item.owner}</span>
                   )}
                 </span>
               </label>
@@ -343,6 +389,27 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
           </div>
         </section>
       )}
+
+      {/* Execute Readiness Check CTA */}
+      <button
+        className="w-full py-4 rounded-xl font-black text-sm tracking-widest active:scale-[0.98] transition-transform"
+        style={{
+          fontFamily: "Space Grotesk, sans-serif",
+          background: "#ffba05",
+          color: "#0c1222",
+          letterSpacing: "0.1em",
+        }}
+        onClick={() => {
+          const incomplete = actionItems.filter((a: any) => !a.done);
+          if (incomplete.length === 0) {
+            alert("All prep items complete. Ready to execute.");
+          } else {
+            alert(`${incomplete.length} prep item${incomplete.length > 1 ? "s" : ""} remaining before this meeting.`);
+          }
+        }}
+      >
+        EXECUTE READINESS CHECK
+      </button>
     </main>
   );
 }

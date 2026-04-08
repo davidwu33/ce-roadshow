@@ -15,7 +15,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#10141a",
+  themeColor: "#0c1222",
 };
 
 export default function RootLayout({
@@ -36,7 +36,7 @@ export default function RootLayout({
         />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className="bg-[#10141a] text-[#dfe2eb] font-[Inter,system-ui,sans-serif] antialiased selection:bg-[#e9c176]/30 selection:text-[#e9c176] min-h-screen">
+      <body className="bg-[#0c1222] text-[#e8eaf0] font-[Inter,system-ui,sans-serif] antialiased selection:bg-[#ffba05]/30 selection:text-[#ffba05] min-h-screen">
         {children}
       </body>
     </html>

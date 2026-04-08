@@ -12,11 +12,11 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="bg-[#181c22] p-4 rounded-lg flex flex-col gap-1">
-      <span className="font-[Space_Grotesk] text-[#d1c5b4] text-[11px] uppercase tracking-wider">
+    <div className="bg-[#161f32] p-4 rounded-lg flex flex-col gap-1">
+      <span className="font-[Space_Grotesk] text-[#9aa0a6] text-[11px] uppercase tracking-wider">
         {label}
       </span>
-      <span className="font-[Space_Grotesk] text-3xl font-bold text-[#e9c176]">
+      <span className="font-[Space_Grotesk] text-3xl font-bold text-[#ffba05]">
         {value}
       </span>
     </div>
@@ -54,10 +54,10 @@ function CalendarStrip({
   return (
     <section className="space-y-3">
       <div className="flex justify-between items-center px-1">
-        <h2 className="font-[Manrope] font-bold text-sm uppercase tracking-widest text-[#d1c5b4]">
+        <h2 className="font-[Manrope] font-bold text-sm uppercase tracking-widest text-[#9aa0a6]">
           April 2026
         </h2>
-        <span className="material-symbols-outlined text-[#e9c176] text-sm">
+        <span className="material-symbols-outlined text-[#ffba05] text-sm">
           calendar_month
         </span>
       </div>
@@ -74,20 +74,20 @@ function CalendarStrip({
               key={date}
               className={`flex-shrink-0 w-14 h-20 rounded-md flex flex-col items-center justify-center gap-1 ${
                 isToday
-                  ? "bg-[#c5a059]/20 border border-[#e9c176]/40"
-                  : "bg-[#181c22]"
+                  ? "bg-[#d4920a]/20 border border-[#ffba05]/40"
+                  : "bg-[#161f32]"
               }`}
             >
               <span
                 className={`font-[Space_Grotesk] text-[10px] ${
-                  isToday ? "text-[#e9c176]" : "text-[#d1c5b4]"
+                  isToday ? "text-[#ffba05]" : "text-[#9aa0a6]"
                 }`}
               >
                 {weekday}
               </span>
               <span
                 className={`font-[Space_Grotesk] text-lg font-bold ${
-                  isToday ? "text-[#e9c176]" : "text-[#dfe2eb]"
+                  isToday ? "text-[#ffba05]" : "text-[#e8eaf0]"
                 }`}
               >
                 {dayNum}
@@ -97,7 +97,7 @@ function CalendarStrip({
                   <div
                     key={i}
                     className={`w-1 h-1 rounded-full ${
-                      isToday ? "bg-[#e9c176]" : "bg-slate-600"
+                      isToday ? "bg-[#ffba05]" : "bg-[#2a3450]"
                     }`}
                   />
                 ))}
@@ -130,23 +130,23 @@ function AgendaCard({
       <div
         className={`p-4 rounded-md flex gap-4 active:scale-[0.98] transition-transform ${
           isNext
-            ? "bg-[#1c2026] border-l-4 border-[#e9c176]"
+            ? "bg-[#1e2840] border-l-4 border-[#ffba05]"
             : isPast
-              ? "bg-[#181c22]/50 opacity-60"
-              : "bg-[#181c22]"
+              ? "bg-[#161f32]/50 opacity-60"
+              : "bg-[#161f32]"
         }`}
       >
-        <div className="flex flex-col items-center w-12 border-r border-[#4e4639]/30 pr-4">
+        <div className="flex flex-col items-center w-12 border-r border-[#2a3450]/30 pr-4">
           <span
             className={`font-[Space_Grotesk] text-[11px] ${
-              isNext ? "text-[#e9c176]" : "text-[#dfe2eb]"
+              isNext ? "text-[#ffba05]" : "text-[#e8eaf0]"
             }`}
           >
             {time}
           </span>
           <span
             className={`font-[Space_Grotesk] text-[11px] ${
-              isNext ? "text-[#e9c176]" : "text-[#d1c5b4]"
+              isNext ? "text-[#ffba05]" : "text-[#9aa0a6]"
             }`}
           >
             {period}
@@ -154,35 +154,35 @@ function AgendaCard({
         </div>
         <div className="flex flex-col gap-1 flex-1">
           <div className="flex justify-between items-start">
-            <span className="font-[Manrope] font-bold text-sm text-[#dfe2eb]">
+            <span className="font-[Manrope] font-bold text-sm text-[#e8eaf0]">
               {meeting.title}
             </span>
             {isNext && (
-              <span className="bg-[#e9c176]/10 text-[#e9c176] text-[9px] px-2 py-0.5 rounded uppercase font-[Space_Grotesk]">
+              <span className="bg-[#ffba05]/10 text-[#ffba05] text-[9px] px-2 py-0.5 rounded uppercase font-[Space_Grotesk]">
                 Coming Up
               </span>
             )}
           </div>
           {meeting.location && (
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[14px] text-[#d1c5b4]">
+              <span className="material-symbols-outlined text-[14px] text-[#9aa0a6]">
                 location_on
               </span>
-              <span className="text-[11px] text-[#d1c5b4]">
+              <span className="text-[11px] text-[#9aa0a6]">
                 {meeting.location}
               </span>
             </div>
           )}
           {meeting.strategicAsk && (
             <div className="flex items-center gap-2 mt-1">
-              <span className="material-symbols-outlined text-[14px] text-[#d1c5b4]">
+              <span className="material-symbols-outlined text-[14px] text-[#9aa0a6]">
                 {meeting.meetingType === "dinner"
                   ? "restaurant"
                   : meeting.meetingType === "site_visit"
                     ? "factory"
                     : "groups"}
               </span>
-              <span className="text-[11px] text-[#d1c5b4] line-clamp-1">
+              <span className="text-[11px] text-[#9aa0a6] line-clamp-1">
                 {meeting.strategicAsk.split("\n")[0]}
               </span>
             </div>
@@ -201,7 +201,7 @@ function TripHQ({ tripId }: { tripId: string }) {
       <div className="animate-pulse space-y-4 px-4 max-w-lg mx-auto">
         <div className="grid grid-cols-2 gap-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 rounded-lg bg-[#181c22]" />
+            <div key={i} className="h-24 rounded-lg bg-[#161f32]" />
           ))}
         </div>
       </div>
@@ -267,7 +267,7 @@ function TripHQ({ tripId }: { tripId: string }) {
 
       {/* Today's Agenda */}
       <section className="space-y-4">
-        <h2 className="font-[Manrope] font-bold text-sm uppercase tracking-widest text-[#d1c5b4] px-1">
+        <h2 className="font-[Manrope] font-bold text-sm uppercase tracking-widest text-[#9aa0a6] px-1">
           {todayMeetings.length > 0 ? "Today's Agenda" : "Upcoming"}
         </h2>
         <div className="space-y-3">
@@ -279,7 +279,7 @@ function TripHQ({ tripId }: { tripId: string }) {
             />
           ))}
           {upcomingTodayMeetings.length === 0 && (
-            <div className="text-center py-8 text-sm text-[#d1c5b4]">
+            <div className="text-center py-8 text-sm text-[#9aa0a6]">
               No meetings scheduled
             </div>
           )}
@@ -287,12 +287,12 @@ function TripHQ({ tripId }: { tripId: string }) {
       </section>
 
       {/* Pipeline Overview */}
-      <section className="bg-[#181c22] p-4 rounded-lg space-y-4">
+      <section className="bg-[#161f32] p-4 rounded-lg space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="font-[Manrope] font-bold text-xs uppercase tracking-widest text-[#d1c5b4]">
+          <h3 className="font-[Manrope] font-bold text-xs uppercase tracking-widest text-[#9aa0a6]">
             Active Deal Flow
           </h3>
-          <span className="font-[Space_Grotesk] text-[10px] text-[#e9c176]">
+          <span className="font-[Space_Grotesk] text-[10px] text-[#ffba05]">
             Live Update
           </span>
         </div>
@@ -309,14 +309,14 @@ function TripHQ({ tripId }: { tripId: string }) {
 
             return (
               <div key={leg.id} className="flex items-center justify-between">
-                <span className="text-[11px] text-[#dfe2eb]">{leg.name}</span>
-                <div className="flex-1 mx-4 h-1 bg-[#31353c] rounded-full overflow-hidden">
+                <span className="text-[11px] text-[#e8eaf0]">{leg.name}</span>
+                <div className="flex-1 mx-4 h-1 bg-[#2a3450] rounded-full overflow-hidden">
                   <div
-                    className="bg-[#e9c176] h-full transition-all"
+                    className="bg-[#ffba05] h-full transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="font-[Space_Grotesk] text-[11px] text-[#e9c176] w-8 text-right">
+                <span className="font-[Space_Grotesk] text-[11px] text-[#ffba05] w-8 text-right">
                   {pct}%
                 </span>
               </div>
@@ -333,7 +333,7 @@ export default function RoadshowPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#d1c5b4]">
+      <div className="flex items-center justify-center h-64 text-[#9aa0a6]">
         <span className="material-symbols-outlined animate-spin text-[24px]">
           progress_activity
         </span>
@@ -343,7 +343,7 @@ export default function RoadshowPage() {
 
   if (!trip) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-2 text-[#d1c5b4]">
+      <div className="flex flex-col items-center justify-center h-64 gap-2 text-[#9aa0a6]">
         <span className="material-symbols-outlined text-[32px]">
           flight_takeoff
         </span>

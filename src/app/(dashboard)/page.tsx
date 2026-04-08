@@ -4,12 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useOrganizations } from "@/hooks/use-organizations";
 import { usePipelineSummary } from "@/hooks/use-pipeline";
-import { useInteractions } from "@/hooks/use-interactions";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { RecentActivity } from "@/components/dashboard/recent-activity";
-import { StageBadge } from "@/components/shared/stage-badge";
 import { WarmthDot } from "@/components/shared/warmth-dot";
-import { Sparkline } from "@/components/shared/sparkline";
 import { formatMoney } from "@/lib/format";
 import {
   FUND_TARGET_MM,
@@ -19,147 +14,144 @@ import {
 } from "@/lib/constants";
 import type { OrgWithMeta } from "@/db/queries/organizations";
 
-function CategoryTable({
+const STAGE_COLORS: Record<string, string> = {
+  prospect:    "#6b7280",
+  intro:       "#3b82f6",
+  meeting:     "#f59e0b",
+  dd:          "#8b5cf6",
+  soft_circle: "#06b6d4",
+  committed:   "#22c55e",
+  closed:      "#10b981",
+  passed:      "#ef4444",
+};
+
+const STAGE_LABELS: Record<string, string> = {
+  prospect:    "PROSPECT",
+  intro:       "INITIAL CONTACT",
+  meeting:     "MEETING",
+  dd:          "DUE DILIGENCE",
+  soft_circle: "SOFT CIRCLE",
+  committed:   "COMMITTED",
+  closed:      "CLOSED",
+  passed:      "PASSED",
+};
+
+function StagePill({ stage }: { stage: string }) {
+  const color = STAGE_COLORS[stage] ?? "#6b7280";
+  const label = STAGE_LABELS[stage] ?? stage.toUpperCase();
+  return (
+    <span
+      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+      style={{
+        fontFamily: "Space Grotesk, sans-serif",
+        letterSpacing: "0.06em",
+        color,
+        background: `${color}22`,
+        border: `1px solid ${color}44`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function CategorySection({
   category,
   orgs,
-  sparklines,
 }: {
   category: (typeof STRATEGIC_CATEGORIES)[number];
   orgs: OrgWithMeta[];
-  sparklines: Record<string, number[]>;
 }) {
   if (orgs.length === 0) return null;
 
   return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{
-        background: "var(--bg-surface)",
-        border: "1px solid var(--border-subtle)",
-      }}
-    >
-      {/* Category header */}
-      <div
-        className="px-4 py-3 flex items-center gap-2.5 border-b"
-        style={{ borderColor: "var(--border-subtle)" }}
-      >
-        <span
-          className="material-symbols-rounded text-[20px]"
-          style={{ color: category.color }}
+    <section>
+      {/* Section header */}
+      <div className="flex items-baseline justify-between mb-3 px-1">
+        <h2
+          className="text-sm font-black tracking-wider"
+          style={{ fontFamily: "Manrope, sans-serif", color: "#e8eaf0" }}
         >
-          {category.icon}
-        </span>
-        <div className="flex-1">
-          <span
-            className="text-sm font-medium"
-            style={{ color: "var(--text-primary)" }}
-          >
-            {category.label}
-          </span>
-          <span
-            className="text-xs ml-2"
-            style={{ color: "var(--text-tertiary)" }}
-          >
-            {orgs.length}
-          </span>
-        </div>
-        <span
-          className="text-[11px]"
-          style={{ color: "var(--text-tertiary)" }}
-        >
-          {category.description}
+          {category.label.toUpperCase()}
+        </h2>
+        <span className="text-xs" style={{ color: "#5f6368" }}>
+          {orgs.length} {orgs.length === 1 ? "Entity" : "Entities"}
         </span>
       </div>
 
-      {/* Rows */}
-      <table className="w-full">
-        <thead>
-          <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-            {["Organization", "Stage", "Contact", "HQ", "Notes", "Warmth", "Activity"].map((h) => (
-              <th
-                key={h}
-                className="px-3 py-1.5 text-[11px] font-medium text-left"
-                style={{ color: "var(--text-tertiary)" }}
+      {/* LP rows */}
+      <div
+        className="rounded-xl overflow-hidden divide-y divide-[rgba(42,52,80,0.4)]"
+        style={{
+          background: "#161f32",
+          border: "1px solid rgba(42, 52, 80, 0.6)",
+        }}
+      >
+        {orgs.map((org) => (
+          <Link
+            key={org.id}
+            href={`/organizations/${org.id}`}
+            className="flex items-center gap-3 px-4 py-3.5 active:bg-[#1e3560] transition-colors"
+          >
+            {/* Warmth dot */}
+            <WarmthDot daysSinceTouch={org.daysSinceInteraction} size={8} />
+
+            {/* Name + location */}
+            <div className="flex-1 min-w-0">
+              <div
+                className="text-sm font-semibold truncate"
+                style={{ color: "#e8eaf0" }}
               >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {orgs.map((org) => (
-            <tr
-              key={org.id}
-              className="transition-colors cursor-pointer"
-              style={{ borderBottom: "1px solid var(--border-subtle)" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "var(--bg-surface-hover)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
-              onClick={() =>
-                (window.location.href = `/organizations/${org.id}`)
-              }
-            >
-              <td className="px-3 py-2">
-                <span
-                  className="text-sm font-medium"
-                  style={{ color: "var(--text-primary)" }}
+                {org.name}
+              </div>
+              {org.headquarters && (
+                <div
+                  className="text-xs flex items-center gap-1 mt-0.5"
+                  style={{ color: "#5f6368" }}
                 >
-                  {org.name}
-                </span>
-              </td>
-              <td className="px-3 py-2">
-                <StageBadge stage={org.stage} />
-              </td>
-              <td
-                className="px-3 py-2 text-xs truncate max-w-[120px]"
-                style={{ color: "var(--text-secondary)" }}
+                  <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+                    location_on
+                  </span>
+                  {org.headquarters}
+                </div>
+              )}
+            </div>
+
+            {/* Stage pill */}
+            <StagePill stage={org.stage} />
+
+            {/* Target commitment */}
+            {org.targetCommitment && (
+              <span
+                className="text-sm font-semibold tabular-nums shrink-0"
+                style={{
+                  fontFamily: "JetBrains Mono, monospace",
+                  color: "#9aa0a6",
+                }}
               >
-                {org.primaryContact ?? "—"}
-              </td>
-              <td
-                className="px-3 py-2 text-xs"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                {org.headquarters ?? "—"}
-              </td>
-              <td
-                className="px-3 py-2 text-xs truncate max-w-[200px]"
-                style={{ color: "var(--text-tertiary)" }}
-              >
-                {org.notes?.slice(0, 60) ?? "—"}
-                {org.notes && org.notes.length > 60 ? "..." : ""}
-              </td>
-              <td className="px-3 py-2">
-                <WarmthDot daysSinceTouch={org.daysSinceInteraction} size={6} />
-              </td>
-              <td className="px-3 py-2">
-                <Sparkline
-                  data={sparklines[org.id] ?? []}
-                  width={48}
-                  height={12}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                {formatMoney(Number(org.targetCommitment))}
+              </span>
+            )}
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
 export default function DashboardPage() {
   const { data: orgs } = useOrganizations();
   const { data: pipeline } = usePipelineSummary();
-  const { data: recentInteractions } = useInteractions({ limit: 10 });
 
   const committedPct = pipeline
     ? Math.round((pipeline.totalCommitted / FUND_TARGET_MM) * 100)
     : 0;
 
-  // Group orgs by strategic category
+  const totalPipeline = orgs?.length ?? 0;
+  const activeOrgs = orgs?.filter(
+    (o) => !["passed", "closed"].includes(o.stage)
+  ).length ?? 0;
+
   const categorizedOrgs = useMemo(() => {
     if (!orgs) return {};
     const groups: Record<string, OrgWithMeta[]> = {};
@@ -172,114 +164,81 @@ export default function DashboardPage() {
   }, [orgs]);
 
   return (
-    <div className="space-y-6 max-w-[1200px]">
-      {/* Header with trip context */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Orbit
-          </h1>
-          <p
-            className="text-sm mt-1"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {orgs?.length ?? 0} organizations across{" "}
-            {Object.keys(categorizedOrgs).length} categories
-          </p>
-        </div>
-        <Link
-          href="/briefing"
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-          style={{ background: "var(--accent)", color: "white" }}
-        >
-          <span className="material-symbols-rounded text-[18px]">
-            strategy
-          </span>
-          Trip Briefing
-        </Link>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard
-          label="Total Pipeline"
-          value={String(orgs?.length ?? 0)}
-          subtext={`${Object.keys(categorizedOrgs).filter(k => k !== "uncategorized").length} strategic categories`}
-          icon="hub"
-        />
-        <StatCard
-          label="Committed"
-          value={pipeline ? formatMoney(pipeline.totalCommitted) : "—"}
-          subtext={`${committedPct}% of $${FUND_TARGET_MM}M`}
-          icon="verified"
-          accent={committedPct > 0 ? "#22c55e" : undefined}
-        />
-        <StatCard
-          label="Stale (14d+)"
-          value={String(pipeline?.staleCount ?? 0)}
-          subtext="Need follow-up"
-          icon="schedule"
-          accent={
-            pipeline && pipeline.staleCount > 5 ? "#f97316" : undefined
-          }
-        />
-        <StatCard
-          label="Recent Touches"
-          value={String(recentInteractions?.length ?? 0)}
-          subtext="Last 10 interactions"
-          icon="touch_app"
-        />
-      </div>
-
-      {/* Category Tables — the main view */}
-      <div className="space-y-4">
-        {STRATEGIC_CATEGORIES.filter((c) => c.key !== "uncategorized").map(
-          (category) => (
-            <CategoryTable
-              key={category.key}
-              category={category}
-              orgs={categorizedOrgs[category.key] ?? []}
-              sparklines={pipeline?.sparklines ?? {}}
-            />
-          )
-        )}
-
-        {/* Uncategorized at bottom */}
-        {categorizedOrgs["uncategorized"] &&
-          categorizedOrgs["uncategorized"].length > 0 && (
-            <CategoryTable
-              category={STRATEGIC_CATEGORY_MAP["uncategorized"]}
-              orgs={categorizedOrgs["uncategorized"]}
-              sparklines={pipeline?.sparklines ?? {}}
-            />
-          )}
-      </div>
-
-      {/* Recent Activity — compact, at the bottom */}
+    <div className="px-4 max-w-lg mx-auto space-y-6 py-4 lg:max-w-4xl lg:px-8">
+      {/* Hero — committed capital */}
       <div
-        className="rounded-xl overflow-hidden"
+        className="rounded-xl p-5"
         style={{
-          background: "var(--bg-surface)",
-          boxShadow: "var(--shadow-sm)",
-          border: "1px solid var(--border-subtle)",
+          background: "#161f32",
+          border: "1px solid rgba(42, 52, 80, 0.6)",
+          borderLeft: "3px solid #ffba05",
         }}
       >
         <div
-          className="px-5 py-3 border-b flex items-center justify-between"
-          style={{ borderColor: "var(--border-subtle)" }}
+          className="text-[11px] font-bold tracking-widest mb-1"
+          style={{ fontFamily: "Space Grotesk, sans-serif", color: "#5f6368" }}
         >
-          <h3
-            className="text-sm font-medium"
-            style={{ color: "var(--text-primary)" }}
-          >
-            Recent Activity
-          </h3>
+          COMMITTED CAPITAL
         </div>
-        {recentInteractions && (
-          <RecentActivity interactions={recentInteractions} />
+        <div className="flex items-baseline gap-3">
+          <span
+            className="text-4xl font-black tabular-nums"
+            style={{ fontFamily: "Manrope, sans-serif", color: "#ffba05" }}
+          >
+            {pipeline ? formatMoney(pipeline.totalCommitted) : "—"}
+          </span>
+          <span className="text-sm" style={{ color: "#22c55e" }}>
+            {committedPct}% of ${FUND_TARGET_MM}M target
+          </span>
+        </div>
+      </div>
+
+      {/* Two stat tiles */}
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { label: "TOTAL LPS", value: String(totalPipeline) },
+          { label: "PIPELINE", value: String(activeOrgs) },
+        ].map(({ label, value }) => (
+          <div
+            key={label}
+            className="rounded-xl p-4"
+            style={{
+              background: "#161f32",
+              border: "1px solid rgba(42, 52, 80, 0.6)",
+            }}
+          >
+            <div
+              className="text-[11px] font-bold tracking-widest mb-1"
+              style={{ fontFamily: "Space Grotesk, sans-serif", color: "#5f6368" }}
+            >
+              {label}
+            </div>
+            <div
+              className="text-3xl font-black tabular-nums"
+              style={{ fontFamily: "Manrope, sans-serif", color: "#e8eaf0" }}
+            >
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Category LP lists */}
+      <div className="space-y-6">
+        {STRATEGIC_CATEGORIES.filter((c) => c.key !== "uncategorized").map(
+          (category) => (
+            <CategorySection
+              key={category.key}
+              category={category}
+              orgs={categorizedOrgs[category.key] ?? []}
+            />
+          )
+        )}
+        {categorizedOrgs["uncategorized"]?.length > 0 && (
+          <CategorySection
+            category={STRATEGIC_CATEGORY_MAP["uncategorized"]}
+            orgs={categorizedOrgs["uncategorized"]}
+          />
         )}
       </div>
     </div>
