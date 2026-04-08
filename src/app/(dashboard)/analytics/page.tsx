@@ -15,16 +15,6 @@ export default function AnalyticsPage() {
     ? Math.round((pipeline.totalCommitted / FUND_TARGET_MM) * 100)
     : 0;
 
-  // Intro network data
-  const introEdges: { from: string; to: string }[] = [];
-  const connectors: Record<string, number> = {};
-  if (orgs) {
-    for (const org of orgs) {
-      // Use notes field to find introduced_by patterns
-      // For now, this is placeholder — real data comes from contacts
-    }
-  }
-
   // Stage conversion: count orgs per stage
   const stageCounts = PIPELINE_STAGES.map((s) => ({
     ...s,

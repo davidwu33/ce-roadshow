@@ -11,17 +11,6 @@ const LEG_SUBTITLES: Record<string, string> = {
   "Milken Conference": "Century City",
 };
 
-function getDaysInRange(start: string, end: string): string[] {
-  const days: string[] = [];
-  const d = new Date(start + "T00:00:00");
-  const endD = new Date(end + "T00:00:00");
-  while (d <= endD) {
-    days.push(d.toISOString().split("T")[0]);
-    d.setDate(d.getDate() + 1);
-  }
-  return days;
-}
-
 function MeetingRow({
   meeting,
   isCurrent,
@@ -159,8 +148,6 @@ function TimelineView({ tripId }: { tripId: string }) {
       {legs.map((leg) => {
         const legMeetings = meetings.filter((m) => m.legId === leg.id);
         const subtitle = LEG_SUBTITLES[leg.name] ?? leg.city ?? "";
-        const dateRange = `${leg.startDate.replace("2026-", "APR ").replace("-", " ")} — ${leg.endDate.replace("2026-", "APR ").replace("-", " ")}`;
-        const tz = leg.timezone?.split("/").pop() ?? "";
 
         return (
           <section key={leg.id} className="mb-12">

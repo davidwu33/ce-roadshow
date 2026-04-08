@@ -42,7 +42,7 @@ export function parseBrainNote(filePath: string): BrainNote | null {
       const colonIdx = line.indexOf(":");
       if (colonIdx === -1) continue;
       const key = line.slice(0, colonIdx).trim();
-      let value = line.slice(colonIdx + 1).trim();
+      const value = line.slice(colonIdx + 1).trim();
 
       // Handle arrays: [item1, item2]
       if (value.startsWith("[") && value.endsWith("]")) {

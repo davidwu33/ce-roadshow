@@ -6,7 +6,7 @@ import {
   lpOrganizations,
   interactions,
 } from "@/db/schema";
-import { eq, desc, count, max, and } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export type MeetingWithOrg = {
   id: string;
@@ -127,12 +127,14 @@ export async function getMeetingDetail(meetingId: string) {
       orgHeadquarters: lpOrganizations.headquarters,
       orgNotes: lpOrganizations.notes,
       orgTags: lpOrganizations.tags,
+      legTimezone: roadshowLegs.timezone,
     })
     .from(roadshowMeetings)
     .leftJoin(
       lpOrganizations,
       eq(roadshowMeetings.organizationId, lpOrganizations.id)
     )
+    .leftJoin(roadshowLegs, eq(roadshowMeetings.legId, roadshowLegs.id))
     .where(eq(roadshowMeetings.id, meetingId))
     .limit(1);
 
@@ -159,6 +161,7 @@ export async function getMeetingDetail(meetingId: string) {
     orgHeadquarters: row.orgHeadquarters,
     orgNotes: row.orgNotes,
     orgTags: row.orgTags,
+    legTimezone: row.legTimezone,
     orgInteractions,
   };
 }

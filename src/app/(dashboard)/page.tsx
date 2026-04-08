@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useOrganizations } from "@/hooks/use-organizations";
 import { usePipelineSummary } from "@/hooks/use-pipeline";

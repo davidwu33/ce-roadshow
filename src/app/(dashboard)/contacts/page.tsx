@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useSWR from "swr";
 import { StageBadge } from "@/components/shared/stage-badge";
 import { WarmthDot } from "@/components/shared/warmth-dot";

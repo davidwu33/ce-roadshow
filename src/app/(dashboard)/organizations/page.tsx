@@ -1,14 +1,44 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useOrganizations } from "@/hooks/use-organizations";
 import { StageBadge } from "@/components/shared/stage-badge";
 import { WarmthDot } from "@/components/shared/warmth-dot";
 import { Sparkline } from "@/components/shared/sparkline";
 import { usePipelineSummary } from "@/hooks/use-pipeline";
-import { formatMoney, formatRelativeDate } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import { PIPELINE_STAGES, LP_TYPES } from "@/lib/constants";
+
+function SortHeader({
+  col,
+  label,
+  align,
+  sortBy,
+  sortDir,
+  onSort,
+}: {
+  col: string;
+  label: string;
+  align?: string;
+  sortBy: string;
+  sortDir: "asc" | "desc";
+  onSort: (col: string) => void;
+}) {
+  return (
+    <th
+      className={`px-3 py-2 text-xs font-medium cursor-pointer select-none ${
+        align === "right" ? "text-right" : "text-left"
+      }`}
+      style={{ color: "var(--text-tertiary)" }}
+      onClick={() => onSort(col)}
+    >
+      {label}
+      {sortBy === col && (
+        <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
+      )}
+    </th>
+  );
+}
 
 export default function OrganizationsPage() {
   const [stageFilter, setStageFilter] = useState<string>("");
@@ -58,29 +88,6 @@ export default function OrganizationsPage() {
         }
       })
     : [];
-
-  const SortHeader = ({
-    col,
-    label,
-    align,
-  }: {
-    col: string;
-    label: string;
-    align?: string;
-  }) => (
-    <th
-      className={`px-3 py-2 text-xs font-medium cursor-pointer select-none ${
-        align === "right" ? "text-right" : "text-left"
-      }`}
-      style={{ color: "var(--text-tertiary)" }}
-      onClick={() => toggleSort(col)}
-    >
-      {label}
-      {sortBy === col && (
-        <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
-      )}
-    </th>
-  );
 
   return (
     <div className="space-y-4 max-w-[1200px]">
@@ -157,15 +164,15 @@ export default function OrganizationsPage() {
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
-              <SortHeader col="name" label="Organization" />
-              <SortHeader col="stage" label="Stage" />
+              <SortHeader col="name" label="Organization" sortBy={sortBy} sortDir={sortDir} onSort={toggleSort} />
+              <SortHeader col="stage" label="Stage" sortBy={sortBy} sortDir={sortDir} onSort={toggleSort} />
               <th
                 className="px-3 py-2 text-xs font-medium text-left"
                 style={{ color: "var(--text-tertiary)" }}
               >
                 Type
               </th>
-              <SortHeader col="target" label="Target" align="right" />
+              <SortHeader col="target" label="Target" align="right" sortBy={sortBy} sortDir={sortDir} onSort={toggleSort} />
               <th
                 className="px-3 py-2 text-xs font-medium text-left"
                 style={{ color: "var(--text-tertiary)" }}
@@ -178,7 +185,7 @@ export default function OrganizationsPage() {
               >
                 Owner
               </th>
-              <SortHeader col="lastTouch" label="Last Touch" />
+              <SortHeader col="lastTouch" label="Last Touch" sortBy={sortBy} sortDir={sortDir} onSort={toggleSort} />
               <th
                 className="px-3 py-2 text-xs font-medium text-center"
                 style={{ color: "var(--text-tertiary)" }}

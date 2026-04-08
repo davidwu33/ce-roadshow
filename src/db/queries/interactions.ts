@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { interactions, lpOrganizations, lpContacts } from "@/db/schema";
-import { desc, eq, sql, and, ilike } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 
 export type InteractionWithContext = {
   id: string;

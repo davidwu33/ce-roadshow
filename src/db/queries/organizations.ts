@@ -5,7 +5,7 @@ import {
   interactions,
   pipelineHistory,
 } from "@/db/schema";
-import { eq, sql, desc, ilike, and, count, max } from "drizzle-orm";
+import { eq, desc, ilike, and, count, max } from "drizzle-orm";
 
 export type OrgWithMeta = {
   id: string;

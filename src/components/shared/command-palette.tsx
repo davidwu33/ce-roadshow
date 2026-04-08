@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Command } from "cmdk";
 import { useSearch } from "@/hooks/use-search";
 import { useRouter } from "next/navigation";
-import { STAGE_MAP, LP_TYPES } from "@/lib/constants";
+import { STAGE_MAP } from "@/lib/constants";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/db";
 import { lpOrganizations, lpContacts } from "@/db/schema";
-import { ilike, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q");

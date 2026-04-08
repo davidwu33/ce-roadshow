@@ -63,7 +63,7 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
     : "TBD";
 
   const timeStr = meeting.meetingTime
-    ? `${meeting.meetingTime.slice(0, 5)} ${meeting.timezone ?? ""}`
+    ? `${meeting.meetingTime.slice(0, 5)} ${meeting.legTimezone ?? ""}`.trim()
     : "";
 
   return (

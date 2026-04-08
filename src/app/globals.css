@@ -54,6 +54,32 @@
   --font-label: "Space Grotesk", sans-serif;
 }
 
+/* ─── Stitch Design Tokens (semantic aliases) ─── */
+:root {
+  /* Backgrounds */
+  --bg-sidebar:           #0a0e14;
+  --bg-surface:           #1c2026;
+  --bg-elevated:          #262a31;
+  --bg-surface-hover:     #262a31;
+  --bg-surface-active:    #31353c;
+
+  /* Text */
+  --text-primary:         #dfe2eb;
+  --text-secondary:       #d1c5b4;
+  --text-tertiary:        #9a8f80;
+
+  /* Borders */
+  --border-subtle:        #31353c;
+
+  /* Accent (gold) */
+  --accent:               #e9c176;
+  --accent-surface:       rgba(233, 193, 118, 0.12);
+
+  /* Shadows */
+  --shadow-sm:            0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lg:            0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 /* ─── Base Styles ─── */
 body {
   background: #10141a;
