@@ -31,7 +31,7 @@ export function Sidebar() {
         </span>
         <div>
           <div className="font-black text-sm tracking-tighter" style={{ color: "#ffba05", fontFamily: "Manrope, sans-serif", letterSpacing: "-0.04em" }}>
-            CE ROADSHOW
+            ORBIT
           </div>
           <div className="text-[11px]" style={{ color: "#5f6368" }}>
             Current Equities

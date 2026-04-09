@@ -84,7 +84,7 @@ export function TopBar({ title }: { title?: string }) {
           className="text-lg font-black tracking-tighter"
           style={{ color: "#ffba05", fontFamily: "Manrope, sans-serif", letterSpacing: "-0.04em" }}
         >
-          {title ?? "CE ROADSHOW"}
+          {title ?? "ORBIT"}
         </span>
       </div>
       <div className="flex items-center gap-2">
